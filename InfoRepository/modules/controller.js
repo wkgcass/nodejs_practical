@@ -4,7 +4,7 @@ function Controller() {
     var doCheck = function (checkFunc, condition) {
         return checkFunc(condition);
     };
-    this.getAvailableActions = function (actions, condition) {
+    var privateGetAvailableActions = function (actions, condition) {
         var ret = [];
         if (actions != null) {
             for (var i = 0; i < actions.length; ++i) {
@@ -23,6 +23,9 @@ function Controller() {
         }
         return ret;
     };
+    this.getAvailableActions = function (modObj, conditon) {
+        return privateGetAvailableActions(modObj.actions, conditon);
+    };
     this.getAvailableChildren = function (module, condition) {
         var ret = [];
         var children = relation.findChildren(module);
@@ -40,6 +43,14 @@ function Controller() {
             }
         }
         return ret;
+    }
+    this.getConditon = function (req) {
+        return {};
+    }
+    this.appendGuide = function (toAppend, actions, children) {
+        toAppend['available_actions'] = actions;
+        toAppend['available_resources'] = children;
+        return JSON.stringify(toAppend, null, 4);
     }
 }
 

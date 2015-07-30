@@ -18,6 +18,22 @@ var mapping = {
 };
 
 function Relation(mapping) {
+    var privateFindModule = function (tree, module) {
+        for (var mod in tree) {
+            if (mod == module) {
+                return tree[mod].module;
+            }
+        }
+        for (var mod in tree) {
+            if (tree[mod].children != undefined) {
+                var childRes = privateFindModule(tree[mod].children, module);
+                if (null != childRes) {
+                    return childRes;
+                }
+            }
+        }
+        return null;
+    }
     var privateFindChildren = function (tree, module) {
         for (var mod in tree) {
             if (mod == module) {
@@ -45,6 +61,11 @@ function Relation(mapping) {
     }
     this.findChildren = function (module) {
         return privateFindChildren(mapping, module);
+    }
+    this.getNamedModule = function (module_name) {
+        var toRequire = privateFindModule(mapping, module_name);
+        if (toRequire == null) return null;
+        return require(toRequire);
     }
 }
 
