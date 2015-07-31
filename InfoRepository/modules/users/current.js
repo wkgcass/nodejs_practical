@@ -5,7 +5,7 @@ function Current() {
     this.check = function (condition) {
         return true;
     }
-    this.description = "entrance of info-repository system";
+    this.description = "manage current logged in user";
     this.url = "/users/me";
 }
 var current = new Current();

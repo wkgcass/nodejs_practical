@@ -72,7 +72,7 @@ var actions = [
                 }
             ]
         },
-        "description": "register a new accound",
+        "description": "register a new account",
         "act": function (emladdr, pwd) {
             // TODO
         }

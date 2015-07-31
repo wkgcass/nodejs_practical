@@ -5,7 +5,7 @@ function Designated() {
     this.check = function (condition) {
         return true;
     }
-    this.description = "entrance of info-repository system";
+    this.description = "retrieve a user's info";
     this.url = "/users/{$user_name}";
 }
 var designated = new Designated();
