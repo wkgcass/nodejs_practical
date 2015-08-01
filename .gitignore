@@ -1,2 +1,3 @@
 *.pem
-global/config.js
+
+LoginSupport/global/config.js
