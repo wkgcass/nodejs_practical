@@ -22,7 +22,19 @@ var actions = [
                 "value": "{$token}",
                 "type": "string",
                 "description": "user token"
-            }
+            },
+            "error": [
+                {
+                    "value": "-101",
+                    "type": "int",
+                    "description": "e-mail address doesn't exist"
+                },
+                {
+                    "value": "-102",
+                    "type": "int",
+                    "description": "wrong password"
+                }
+            ]
         },
         "description": "login to the system and get user token",
         "act": function (emladdr, pwd) {
