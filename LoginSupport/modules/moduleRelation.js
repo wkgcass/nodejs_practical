@@ -1,7 +1,11 @@
 var mapping = {
-    "users": {
-        "module": "./users",
+    "passport": {
+        "module": "./passport",
         "children": {
+            "user": {
+                "module": "./user",
+                "children": {}
+            }
         }
     }
 };

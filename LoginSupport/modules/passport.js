@@ -20,31 +20,9 @@ function validPwd(pwd) {
     return reg.test(pwd);
 }
 
-function isDeprecated(token) {
-    if (token.deprecated) {
-        return true;
-    } else {
-        if (token.dead_time > Date.now()) {
-            return false;
-        } else {
-            tokenColl.update({
-                "_id": token._id
-            }, {
-                "$set": {
-                    "deprecated": true
-                }
-            });
-            return true;
-        }
-    }
-}
-
 var actions = [
     {
         "name": "login",
-        "check": function (condition) {
-            return true;
-        },
         "method": "login",
         "args": [
             {
@@ -113,11 +91,12 @@ var actions = [
                                                 "_id": {
                                                     "$in": removeInToken
                                                 }
-                                            },
-                                            {
+                                            }, {
                                                 "$set": {
                                                     "deprecated": true
                                                 }
+                                            }, {
+                                                "multi": true
                                             }
                                         );
                                     };
@@ -132,8 +111,7 @@ var actions = [
                                                 // alive
                                                 if (token.ip_info.country == ipInfo.country
                                                     && token.ip_info.region == ipInfo.region
-                                                    && token.ip_info.city == ipInfo.city
-                                                    && token.ip_info.ips == ipInfo.ips) {
+                                                    && token.ip_info.city == ipInfo.city) {
                                                     // token found
                                                     tokenColl.update({
                                                         "_id": token._id
@@ -202,9 +180,6 @@ var actions = [
     },
     {
         "name": "register",
-        "check": function (condition) {
-            return true;
-        },
         "method": "register",
         "args": [
             {
@@ -275,7 +250,7 @@ var actions = [
                             }
                         }, {}, function (err, res) {
                             if (err) {
-                                callback(err, null);
+                                callback(err, res);
                             } else {
                                 regColl.find({
                                     "emladdr": emladdr
@@ -294,12 +269,18 @@ var actions = [
                                                 "dead_time": Date.now() + config.user.register_verify_time.parseToSecond() * 1000
                                             }, {}, function (err, res) {
                                                 if (err) {
-                                                    callback(err, null);
+                                                    callback(err, res);
                                                 } else {
                                                     callback(false, 0);
                                                     mail(emladdr,
                                                         config.interaction.email.activation.title,
-                                                        config.interaction.email.activation.content.replace("{$code}", activeCode)
+                                                        config.interaction.email.activation.content.replace("{$code}", activeCode),
+                                                        function (err, res) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                console.log(res);
+                                                            }
+                                                        }
                                                     );
                                                 }
                                             });
@@ -317,86 +298,7 @@ var actions = [
         }
     },
     {
-        "name": "check_token",
-        "check": function (condition) {
-            return true;
-        },
-        "method": "check",
-        "args": [
-            {
-                "name": "token",
-                "type": "string",
-                "description": "token retrieved when logging in"
-            }
-        ],
-        "return": {
-            "success": {
-                "value": "{$token_state}",
-                "type": "object",
-                "description": "retrieve designated token state, including info like user_email, token_id, bound_ip, last_visit, dead_time"
-            },
-            "error": []
-        },
-        "act": function (ip, token, callback) {
-            tokenColl.find({
-                "token": token
-            }, function (err, docs) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    if (null == docs || docs.length == 0) {
-                        callback(101, "token not found");
-                    } else {
-                        var token = docs[0];
-                        ipcheck(ip, function (err, ipInfo) {
-                            if (err) {
-                                callback(err, null);
-                            } else {
-                                if (ipInfo.country == token.ip_info.country
-                                    && ipInfo.region == token.ip_info.region
-                                    && ipInfo.city == token.ip_info.city
-                                    && ipInfo.ips == token.ip_info.ips
-                                    ) {
-                                    var user_id = token.user;
-                                    coll.find({
-                                        "_id": user_id
-                                    }, function (err, userDocs) {
-                                        if (err) {
-                                            callback(err, null);
-                                        } else {
-                                            if (null == userDocs || userDocs.length == 0) {
-                                                tokenColl.delete({
-                                                    "_id": token._id
-                                                });
-                                                callback(101, "token not found");
-                                            } else {
-                                                var user = userDocs[0];
-                                                callback(false, {
-                                                    "user_email": user.emladdr,
-                                                    "token_id": token.token,
-                                                    "ip_info": token.ip_info,
-                                                    "last_visit": new Date(token.last_visit).toLocaleString(),
-                                                    "dead_time": new Date(token.dead_time).toLocaleString(),
-                                                    "deprecated": token.deprecated
-                                                });
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    callback(101, "token not found");
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    },
-    {
         "name": "activate_account",
-        "check": function (condition) {
-            return true;
-        },
         "method": "activate",
         "args": [
             {
@@ -453,122 +355,7 @@ var actions = [
         }
     },
     {
-        "name": "change_pwd",
-        "check": function (condition) {
-            return true;
-        },
-        "method": "changePWD",
-        "args": [
-            {
-                "name": "token",
-                "type": "string",
-                "description": "user token you retrieved when logging in"
-            },
-            {
-                "name": "opwd",
-                "type": "string",
-                "description": "original password, encrypted with RSA public key. see index for more info"
-            },
-            {
-                "name": "npwd",
-                "type": "string",
-                "description": "new password, , encrypted with RSA public key. see index for more info"
-            }
-        ],
-        "return": {
-            "success": {
-                "value": "0",
-                "type": "int",
-                "description": "your password has successfully changed"
-            },
-            "error": [
-                {
-                    "value": "-501",
-                    "type": "int",
-                    "description": "wrong original password"
-                },
-                {
-                    "value": "-502",
-                    "type": "int",
-                    "description": "invalid new password",
-                    "format": "longer than 6 words and contain only english UPPER/down case characters and 0~9"
-                }
-            ]
-        },
-        "act": function (ip, token, opwd, npwd, callback) {
-            tokenColl.find({
-                "token": token, "deprecated": false
-            }, function (err, docs) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    if (null == docs || docs.length == 0) {
-                        callback(101, "token not found")
-                    } else {
-                        var token = docs[0];
-                        if (isDeprecated(token)) {
-                            callback(102, "token is deprecated");
-                        } else {
-                            // get user
-                            coll.find({
-                                "_id": token.user
-                            }, function (err, userDocs) {
-                                if (err) {
-                                    callback(err, null);
-                                } else {
-                                    if (userDocs == null || userDocs.length == 0) {
-                                        tokenColl.remove({"_id": token._id});
-                                        callback(101, "token not found");
-                                    } else {
-                                        var user = userDocs[0];
-                                        try {
-                                            var op = encoder.decodeRSA(opwd);
-                                            var np = encoder.decodeRSA(npwd);
-                                        } catch (err) {
-                                            callback(err, null);
-                                            return;
-                                        }
-                                        if (validPwd(np)) {
-                                            if (encoder.saltMD5(op) == user.pwd) {
-                                                var saltMD5 = encoder.saltMD5(np);
-                                                // change pwd
-                                                coll.update({
-                                                    "_id": user._id
-                                                }, {
-                                                    "$set": {
-                                                        "pwd": saltMD5
-                                                    }
-                                                });
-                                                // disable all tokens
-                                                tokenColl.update({
-                                                    "user": user._id,
-                                                    "deprecated": false
-                                                }, {
-                                                    "$set": {
-                                                        "deprecated": true
-                                                    }
-                                                });
-                                                callback(false, 0);
-                                            } else {
-                                                callback(-501, "wrong original password");
-                                            }
-                                        } else {
-                                            callback(-502, "invalid new password");
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-        }
-    },
-    {
         "name": "lost_pwd",
-        "check": function (condition) {
-            return true;
-        },
         "method": "lostPWD",
         "args": [
             {
@@ -588,10 +375,15 @@ var actions = [
                     "value": "-601",
                     "type": "int",
                     "description": "account doesn't exist"
+                },
+                {
+                    "value": "-602",
+                    "type": "int",
+                    "description": "client ip not in usual places"
                 }
             ]
         },
-        "act": function (emladdr, callback) {
+        "act": function (ip, emladdr, callback) {
             coll.find({
                 "emladdr": emladdr
             }, function (err, docs) {
@@ -602,149 +394,150 @@ var actions = [
                         callback(-601, "account doesn't exist");
                     } else {
                         var user = docs[0];
-                        var pwd = "";
-                        var len = 16;
-                        var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-                        var maxPos = $chars.length;
-                        for (var i = 0; i < len; i++) {
-                            pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
-                        }
-                        coll.update({
-                            "_id": user._id
-                        }, {
-                            "$set": {
-                                "pwd": encoder.saltMD5(pwd)
-                            }
-                        });
-                        tokenColl.update({
+                        tokenColl.find({
                             "user": user._id,
                             "deprecated": false
-                        }, {
-                            "$set": {
-                                "deprecated": true
+                        }, function (err, tokenDocs) {
+                            // get not deprecated tokens
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                // get ip info
+                                ipcheck(ip, function (err, ipInfo) {
+                                    if (err) {
+                                        callback(err, null);
+                                    } else {
+                                        var doPWDGenerate = function () {
+                                            var pwd = "";
+                                            var len = 16;
+                                            var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+                                            var maxPos = $chars.length;
+                                            for (var i = 0; i < len; i++) {
+                                                pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+                                            }
+                                            coll.update({
+                                                "_id": user._id
+                                            }, {
+                                                "$set": {
+                                                    "pwd": encoder.saltMD5(pwd)
+                                                }
+                                            });
+                                            tokenColl.update({
+                                                "user": user._id,
+                                                "deprecated": false
+                                            }, {
+                                                "$set": {
+                                                    "deprecated": true
+                                                }
+                                            }, {
+                                                "multi": true
+                                            });
+                                            mail(user.emladdr,
+                                                config.interaction.email.lost_pwd.title,
+                                                config.interaction.email.lost_pwd.content.replace("{$pwd}", pwd),
+                                                function (err, res) {
+                                                    if (err) {
+                                                        if (err != 201) {
+                                                            console.log(err + " when sending email to " + emladdr + ", res is " + res);
+                                                        }
+                                                    }
+                                                });
+                                            callback(false, 0);
+                                        };
+                                        var doCheckDepreacted = function () {
+                                            tokenColl.find({
+                                                "user": user._id,
+                                                "deprecated": true
+                                            }, function (err, dpTokenDocs) {
+                                                if (err) {
+                                                    callback(err, null);
+                                                } else {
+                                                    if (null == dpTokenDocs || dpTokenDocs.length == 0) {
+                                                        callback(-602, "client ip not in usual places");
+                                                    } else {
+                                                        for (var i = 0; i < dpTokenDocs.length; ++i) {
+                                                            var token = dpTokenDocs[i];
+                                                            if (ipInfo.country == token.ip_info.country
+                                                                && ipInfo.region == token.ip_info.region
+                                                                && ipInfo.city == token.ip_info.city
+                                                                ) {
+                                                                // pass
+                                                                doPWDGenerate();
+                                                                return;
+                                                            }
+                                                        }
+                                                    }
+                                                    callback(-602, "client ip not in usual places");
+                                                }
+                                            });
+                                        };
+                                        if (null == tokenDocs || tokenDocs.length == 0) {
+                                            doCheckDepreacted();
+                                        } else {
+                                            // check tokens
+                                            for (var i = 0; i < tokenDocs.length; ++i) {
+                                                var token = tokenDocs[i];
+                                                if (ipInfo.country == token.ip_info.country
+                                                    && ipInfo.region == token.ip_info.region
+                                                    && ipInfo.city == token.ip_info.city
+                                                    ) {
+                                                    // pass
+                                                    doPWDGenerate();
+                                                    return;
+                                                }
+                                            }
+                                            // not pass
+                                            doCheckDepreacted();
+                                        }
+                                    }
+                                });
                             }
                         });
-                        mail(user.emladdr,
-                            config.interaction.email.lost_pwd.title,
-                            config.interaction.email.lost_pwd.content.replace("{$pwd}", pwd),
-                            function (err, res) {
-                                if (err) {
-                                    callback(err, res);
-                                } else {
-                                    callback(false, 0);
-                                }
-                            });
                     }
                 }
             });
         }
     },
     {
-        "name": "logout",
-        "check": function (condition) {
-            return true;
-        },
-        "method": "logout",
+        "name": "resend",
+        "method": "resend",
         "args": [
             {
-                "name": "token",
+                "name": "emladdr",
                 "type": "string",
-                "description": "user token you retrieved when logging in"
+                "description": "email address that you haven't verify"
             }
         ],
         "return": {
             "success": {
                 "value": "0",
                 "type": "int",
-                "description": "you have successfully logged out"
+                "description": "an email containing password generated by system has successfully sent to your address"
             },
-            "error": []
-        },
-        "act": function (ip, token, callback) {
-            tokenColl.find({
-                "token": token
-            }, function (err, docs) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    var tok = docs[0];
-                    if (isDeprecated(token)) {
-                        callback(102, "token is deprecated");
-                    } else {
-                        ipcheck(ip, function (err, ipInfo) {
-                            if (ipInfo.country == tok.ip_info.country
-                                && ipInfo.region == tok.ip_info.region
-                                && ipInfo.city == tok.ip_info.city
-                                && ipInfo.isp == tok.ip_info.isp
-                                ) {
-                                callback(false, 0);
-                                tokenColl.update({
-                                    "_id": tok._id
-                                }, {
-                                    "$set": {
-                                        "deprecated": true
-                                    }
-                                });
-                            } else {
-                                callback(101, "token not found");
-                            }
-                        });
-                    }
+            "error": [
+                {
+                    "value": "-901",
+                    "type": "int",
+                    "description": "cannot find designated email address to verify"
                 }
-            });
-        }
-    },
-    {
-        "name": "logout_all",
-        "check": function (condition) {
-            return true;
+            ]
         },
-        "method": "logoutAll",
-        "args": [
-            {
-                "name": "token",
-                "type": "string",
-                "description": "user token you retrieved when logging in"
-            }
-        ],
-        "return": {
-            "success": {
-                "value": "0",
-                "type": "int",
-                "description": "you have successfully logged out all existing tokens"
-            },
-            "error": []
-        },
-        "act": function (ip, token, callback) {
-            tokenColl.find({
-                "token": token
+        "act": function (emladdr, callback) {
+            regColl.find({
+                "emladdr": emladdr
             }, function (err, docs) {
                 if (err) {
                     callback(err, null);
                 } else {
-                    var tok = docs[0];
-                    if (isDeprecated(token)) {
-                        callback(102, "token is deprecated");
+                    if (null == docs || docs.length == 0) {
+                        callback(-901, "cannot find designated email address to verify");
                     } else {
-                        ipcheck(ip, function (err, ipInfo) {
-                            if (ipInfo.country == tok.ip_info.country
-                                && ipInfo.region == tok.ip_info.region
-                                && ipInfo.city == tok.ip_info.city
-                                && ipInfo.isp == tok.ip_info.isp
-                                ) {
-                                callback(false, 0);
-                                tokenColl.update({
-                                    "user": tok.user,
-                                    "deprecated": false
-                                }, {
-                                    "$set": {
-                                        "deprecated": true
-                                    }
-                                });
-                            } else {
-                                callback(101, "token not found");
-                            }
-                        });
+                        var doc = docs[0];
+                        mail(doc.emladdr,
+                            config.interaction.email.activation.title,
+                            config.interaction.email.activation.content.replace("{$code}", doc.active_code),
+                            callback
+                        );
                     }
                 }
             });
@@ -752,13 +545,10 @@ var actions = [
     }
 ];
 
-function Users() {
+function Passport() {
     this.actions = actions;
-    this.check = function (condition) {
-        return true;
-    }
-    this.description = "basic user management";
-    this.url = "/users";
+    this.description = "basic passport management";
+    this.url = "/passport";
 }
-var users = new Users();
-module.exports = users;
+var passport = new Passport();
+module.exports = passport;

@@ -1,56 +1,90 @@
 var relation = require("./moduleRelation");
 
 function Controller() {
-    var doCheck = function (checkFunc, condition) {
-        return checkFunc(condition);
-    };
-    var privateGetAvailableActions = function (actions, condition) {
+    var privateGetAvailableActions = function (actions) {
         var ret = [];
         if (actions != null) {
             for (var i = 0; i < actions.length; ++i) {
                 var action = actions[i];
-                if (doCheck(action.check, condition)) {
-                    var tmp = {
-                        "name": action["name"],
-                        "method": action["method"],
-                        "args": action["args"],
-                        "return": action["return"],
-                        "description": action["description"]
-                    };
-                    ret.push(tmp);
-                }
+                var tmp = {
+                    "name": action["name"],
+                    "method": action["method"],
+                    "args": action["args"],
+                    "return": action["return"],
+                    "description": action["description"]
+                };
+                ret.push(tmp);
             }
         }
         return ret;
     };
-    this.getAvailableActions = function (modObj, conditon) {
-        return privateGetAvailableActions(modObj.actions, conditon);
+    this.getAvailableActions = function (modObj) {
+        return privateGetAvailableActions(modObj.actions);
     };
-    this.getAvailableChildren = function (module, condition) {
+    this.getAvailableChildren = function (module) {
         var ret = [];
         var children = relation.findChildren(module);
         if (null != children) {
             for (var name in children) {
                 var mod = require(children[name]);
-                if (doCheck(mod.check, condition)) {
-                    var tmp = {
-                        "name": name,
-                        "url": mod["url"],
-                        "description": mod["description"]
-                    };
-                    ret.push(tmp);
-                }
+                var tmp = {
+                    "name": name,
+                    "url": mod["url"],
+                    "description": mod["description"]
+                };
+                ret.push(tmp);
             }
         }
         return ret;
-    }
-    this.getConditon = function (req) {
-        return {};
-    }
+    };
     this.appendGuide = function (toAppend, actions, children) {
         toAppend['available_actions'] = actions;
         toAppend['available_resources'] = children;
         return JSON.stringify(toAppend, null, 4);
+    };
+    this.getNamedActionFunc = function (name, actions) {
+        for (var i = 0; i < actions.length; ++i) {
+            if (actions[i].name == name) {
+                return actions[i].act;
+            }
+        }
+        return null;
+    };
+    this.handleResult = function (err, res, callback) {
+        if (err) {
+            callback({
+                "state": "error",
+                "err": err,
+                "res": res
+            });
+        } else {
+            callback({
+                "state": "success",
+                "err": err,
+                "res": res
+            });
+        }
+    };
+    this.getActionAndArgs = function (req, actions) {
+        var query = req.query;
+        for (var i = 0; i < actions.length; ++i) {
+            var action = actions[i];
+            for (var key in query) {
+                if (key == action.method && query[key] == "") {
+                    var args = {};
+                    for (var j = 0; j < action.args; ++j) {
+                        var arg = actions.args[j];
+                        args[arg.name] = req.query[arg.name];
+                    }
+                    return {
+                        "action": action.method,
+                        "func": action.act,
+                        "args": args
+                    };
+                }
+            }
+        }
+        return null;
     }
 }
 

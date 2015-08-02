@@ -25,7 +25,7 @@ function doSend(mailDoc, to, subject, content, callback) {
                 "_id": mailDoc._id
             }, {
                 "$set": {
-                    "dead_time": (Date.now() + config.user.email_interval.parseToSecond())
+                    "dead_time": (Date.now() + config.user.email_interval.parseToSecond() * 1000)
                 }
             });
         }
