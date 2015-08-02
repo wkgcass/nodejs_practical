@@ -29,7 +29,10 @@ function Encoder() {
     }
     this.saltMD5 = function (msg) {
         var md5 = crypto.createHash('md5');
-        md5.update(config.encoding.method.md5.prefix_salt + msg + config.encoding.method.md5.suffix_salt);
+        var md5_2 = crypto.createHash('md5');
+        md5_2.update(msg);
+        var first = md5_2.digest('hex');
+        md5.update(config.encoding.method.md5.prefix_salt + first + config.encoding.method.md5.suffix_salt);
         return md5.digest('hex');
     }
 }

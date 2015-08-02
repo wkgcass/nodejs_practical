@@ -2,12 +2,7 @@ var express = require('express');
 var router = express.Router();
 var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
-
-var doPrint = function (err, result) {
-    controller.handleResult(err, result, function (obj) {
-        res.send(JSON.stringify(obj, null, 4));
-    });
-};
+var config = require("../global/config");
 
 router.get('/', function (req, res) {
     var module_name = "passport";
@@ -20,9 +15,18 @@ router.get('/', function (req, res) {
         var avaActions = controller.getAvailableActions(modObj);
         var avaChildren = controller.getAvailableChildren(module_name);
         res.send(controller.appendGuide({
-            "info": "RSA public key can download from '../keys/public_key.pem'",
+            "info": "RSA public key can be downloaded from '../keys/public_key.pem'",
             "global_exceptions": require("../modules/exceptions")
         }, avaActions, avaChildren));
+    };
+    var doPrint = function (err, result) {
+        controller.handleResult(err, result, function (obj) {
+            if (req.query.callback != undefined && req.query.callback != "") {
+                res.send(req.query.callback + "(" + JSON.stringify(obj, null, 4) + ");");
+            } else {
+                res.send(JSON.stringify(obj, null, 4));
+            }
+        });
     };
 
     if (act == null) {
@@ -61,11 +65,26 @@ router.get('/:token', function (req, res) {
             });
         });
     };
+    var doPrint = function (err, result) {
+        controller.handleResult(err, result, function (obj) {
+            if (req.query.callback != undefined && req.query.callback != "") {
+                res.send(req.query.callback + "(" + JSON.stringify(obj, null, 4) + ");");
+            } else {
+                res.send(JSON.stringify(obj, null, 4));
+            }
+        });
+    };
 
     if (act == null) {
         doDefault();
     } else {
         if (act.action == "check") {
+            for (var i = 0; i < config.system.direct_ip.length; ++i) {
+                if (config.system.direct_ip[i] == req.ip) {
+                    act.func(req.ip, token, doPrint, req.query.refresh);
+                    return;
+                }
+            }
             act.func(req.ip, token, doPrint);
         } else if (act.action == "logout") {
             act.func(req.ip, token, doPrint);
