@@ -6,6 +6,8 @@ router.get('/', function (req, res) {
         res.render('register');
     } else if (req.query.activate == "") {
         res.render('activate');
+    } else if (req.query.lost_pwd == "") {
+        res.render('forget');
     } else {
         res.render('login');
     }

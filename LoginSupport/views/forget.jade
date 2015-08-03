@@ -1,0 +1,18 @@
+extends layout
+block content
+    div.container
+        div(style="width:50%;margin-left:auto;margin-right:auto")
+            br
+            .panel.panel-default(style='background-color:#FFF')
+                .panel-body
+                    div(style='text-align:center')
+                        h2 Forget Your Password?
+                    br
+                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+                    p &nbsp;&nbsp;You must do this in places you usually log in.
+                    br
+                    button.btn.btn-md.btn-danger.btn-block Reset My Password
+                    br
+                    p
+                        a(style='float:left' href='?') Go back to Login
+                    br
