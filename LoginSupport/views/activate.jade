@@ -1,0 +1,21 @@
+extends layout
+block content
+    div.container
+        div(style="width:50%;margin-left:auto;margin-right:auto")
+            br
+            .panel.panel-default(style='background-color:#FFF')
+                .panel-body
+                    div(style='text-align:center')
+                        h2 Activate
+                    br
+                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+                    input#code.form-control(type="text" placeholder="Activation Code" required=true)
+                    p &nbsp;&nbsp;activation code has sent to your email address
+                    br
+                    button.btn.btn-md.btn-warning.btn-block Activate
+                    br
+                    p
+                        a(style='float:left' href='?') Go back to Login
+                        a(style='float:right') didn't receive activation code? send again..
+
+                    br

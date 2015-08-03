@@ -258,7 +258,7 @@ var actions = [
                                     if (err) {
                                         callback(err, null);
                                     } else {
-                                        if (docs == null || docs.length == 0) {
+                                        var doRegister = function () {
                                             // do register
                                             var saltmd5 = encoder.saltMD5(real_pwd);
                                             var activeCode = parseInt(Math.random() * 900000 + 100000);
@@ -284,8 +284,24 @@ var actions = [
                                                     );
                                                 }
                                             });
+                                        };
+                                        if (docs == null || docs.length == 0) {
+                                            doRegister();
                                         } else {
-                                            callback(-201, "email address in use");
+                                            var regDoc = docs[0];
+                                            if (regDoc.dead_time < Date.now()) {
+                                                regColl.remove({
+                                                    "_id": regDoc._id
+                                                }, {}, function (err, res) {
+                                                    if (err) {
+                                                        callback(err, res);
+                                                    } else {
+                                                        doRegister();
+                                                    }
+                                                });
+                                            } else {
+                                                callback(-201, "email address in use");
+                                            }
                                         }
                                     }
                                 });
@@ -323,6 +339,11 @@ var actions = [
                     "value": "-402",
                     "type": "int",
                     "description": "wrong activation code"
+                },
+                {
+                    "value": "-403",
+                    "type": "int",
+                    "description": "this account has passed activation deadline"
                 }
             ]
         },
@@ -337,6 +358,13 @@ var actions = [
                         callback(-401, "cannot find not-activated account with given email address");
                     } else {
                         var reg = docs[0];
+                        if (reg.dead_time < Date.now()) {
+                            regColl.remove({
+                                "_id": reg._id
+                            });
+                            callback(-403, "this account has passed activation deadline");
+                            return;
+                        }
                         if (reg.active_code == code) {
                             regColl.remove({
                                 "_id": reg._id

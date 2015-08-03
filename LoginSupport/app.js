@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var passport = require('./routes/passport');
+var passpage = require('./routes/passpage');
 
 var app = express();
 
@@ -21,7 +22,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/passport', passport);
+app.use('/passport_api', passport);
+app.use('/passport', passpage);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -57,4 +59,4 @@ app.use(function (err, req, res, next) {
 
 module.exports = app;
 
-app.listen(8800);
+app.listen(3000);

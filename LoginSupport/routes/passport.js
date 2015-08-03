@@ -79,13 +79,7 @@ router.get('/:token', function (req, res) {
         doDefault();
     } else {
         if (act.action == "check") {
-            for (var i = 0; i < config.system.direct_ip.length; ++i) {
-                if (config.system.direct_ip[i] == req.ip) {
-                    act.func(req.ip, token, doPrint, req.query.refresh);
-                    return;
-                }
-            }
-            act.func(req.ip, token, doPrint);
+            act.func(req.ip, token, doPrint, act.args.refresh);
         } else if (act.action == "logout") {
             act.func(req.ip, token, doPrint);
         } else if (act.action == "logoutAll") {

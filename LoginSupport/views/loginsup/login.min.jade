@@ -1,0 +1,15 @@
+br
+.panel.panel-default(style='background-color:#FFF')
+    .panel-body
+        h2 Login
+        br
+        input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+        input#pwd.form-control(type="password" placeholder="Password" required=true)
+        br
+        button.btn.btn-md.btn-primary.btn-block Login
+        button.btn.btn-md.btn-default.btn-block(onclick="window.location.href='?register'") Register
+        br
+        p
+            a(style='float:left' href='?activate') Activate your account
+            a(style='float:right') Forget password?
+        br

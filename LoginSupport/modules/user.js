@@ -41,6 +41,12 @@ var actions = [
                 "name": "token",
                 "type": "string",
                 "description": "token retrieved when logging in"
+            },
+            {
+                "name": "refresh",
+                "optional": true,
+                "type": "bool",
+                "description": "true then the system refreshes the token's last visit time, false otherwise"
             }
         ],
         "return": {
@@ -51,6 +57,13 @@ var actions = [
             },
             "error": []
         },
+        /**
+         *
+         * @param ip string client ip address
+         * @param token string user token
+         * @param callback function(err, res)
+         * @param refresh bool refresh the token state
+         */
         "act": function (ip, token, callback, refresh) {
             if (refresh == undefined) {
                 refresh = false;
@@ -87,7 +100,7 @@ var actions = [
                                                 callback(101, "token not found");
                                             } else {
                                                 var user = userDocs[0];
-                                                if (refresh) {
+                                                if (refresh && !token.deprecated) {
                                                     tokenColl.update({
                                                         "_id": token._id
                                                     }, {
