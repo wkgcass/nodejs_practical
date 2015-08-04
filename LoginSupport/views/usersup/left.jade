@@ -1,0 +1,14 @@
+- for(var key in items){
+    .panel.panel-info
+        .panel-heading #{key}
+        ul.list-group
+            -items[key].forEach(function(item){
+                - if(item.checked){
+                    li.active.list-group-item
+                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&id=#{user.user_id}&from=cassite.net');") #{item.title}
+                -}else{
+                    li.list-group-item
+                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&id=#{user.user_id}&from=cassite.net');") #{item.title}
+                -}
+            -})
+- }

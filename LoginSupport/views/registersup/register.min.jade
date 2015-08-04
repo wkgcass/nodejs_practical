@@ -1,15 +1,21 @@
+script(src="javascripts/cryptico.js")
+script(src="javascripts/jsbn.js")
+script(src="javascripts/rsa.js")
+script(src="javascripts/pwd_rsa_encode.js")
+script(src="javascripts/register.js")
+
 br
 .panel.panel-default(style='background-color:#FFF')
     .panel-body
         h2 Register
         br
-        input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+        input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
         input#pwd.form-control(type="password" placeholder="Password" required=true)
-        input#repwd.form-control(type="password" placeholder="Re" required=true)
-        p(style='font-size:3') &nbsp;&nbsp;at least 6 characters, contains only numbers or english characters
+        input#rpwd.form-control(type="password" placeholder="Re" required=true)
+        p(style='font-size:14px') &nbsp;&nbsp;at least 6 characters, and mathces <code>/^[a-z0-9]+$/i</code>
         br
-        button.btn.btn-md.btn-success.btn-block Register
+        button.btn.btn-md.btn-success.btn-block#regbtn Register
         br
         p
-            a(style='float:left' href='?') Go back to Login
+            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") Go back to Login
         br

@@ -15,7 +15,6 @@
         "serve-favicon": "~2.3.0",
         "mongodb": "*",
         "monk": "*",
-        "ursa": "*",
         "nodemailer": "0.7.1"
     }
 }

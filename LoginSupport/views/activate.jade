@@ -1,21 +1,24 @@
 extends layout
 block content
+    script(src="javascripts/activate.js")
+    br
+    br
     div.container
         div(style="width:50%;margin-left:auto;margin-right:auto")
             br
-            .panel.panel-default(style='background-color:#FFF')
+            .panel.panel-default(style='background-color:#E1E1E1')
                 .panel-body
                     div(style='text-align:center')
                         h2 Activate
                     br
-                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
                     input#code.form-control(type="text" placeholder="Activation Code" required=true)
                     p &nbsp;&nbsp;activation code has sent to your email address
                     br
-                    button.btn.btn-md.btn-warning.btn-block Activate
+                    button#actbtn.btn.btn-md.btn-warning.btn-block Activate
                     br
                     p
-                        a(style='float:left' href='?') Go back to Login
-                        a(style='float:right') didn't receive activation code? send again..
+                        a(style='float:left' href='#' onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") Go back to Login
+                        a(style='float:right' href="#" onclick="resend()") didn't receive activation code? send again..
 
                     br

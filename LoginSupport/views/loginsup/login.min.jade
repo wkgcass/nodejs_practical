@@ -1,15 +1,21 @@
+script(src="javascripts/cryptico.js")
+script(src="javascripts/jsbn.js")
+script(src="javascripts/rsa.js")
+script(src="javascripts/pwd_rsa_encode.js")
+script(src="javascripts/login.js")
+
 br
 .panel.panel-default(style='background-color:#FFF')
     .panel-body
         h2 Login
         br
-        input#emladdr.form-control(type="email" placeholder="Email Address" required=true)
+        input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
         input#pwd.form-control(type="password" placeholder="Password" required=true)
         br
-        button.btn.btn-md.btn-primary.btn-block Login
-        button.btn.btn-md.btn-default.btn-block(onclick="window.location.href='?register'") Register
+        button.btn.btn-md.btn-primary.btn-block#loginbtn Login
+        button.btn.btn-md.btn-default.btn-block(onclick="window.location.href = '?register&fill_emladdr=' + encodeURI($('#emladdr').val());") Register
         br
         p
-            a(style='float:left;font-size:14px;font-weight:400' href='?activate') Activate your account
-            a(style='float:right;font-size:14px;font-weight:400' href="?lost_pwd") Forget password?
+            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?activate&lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") Activate your account
+            a(style='float:right;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") Forget password?
         br

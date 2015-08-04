@@ -60,7 +60,6 @@ function Controller() {
         } else {
             callback({
                 "state": "success",
-                "err": err,
                 "res": res
             });
         }
@@ -72,8 +71,8 @@ function Controller() {
             for (var key in query) {
                 if (key == action.method && query[key] == "") {
                     var args = {};
-                    for (var j = 0; j < action.args; ++j) {
-                        var arg = actions.args[j];
+                    for (var j = 0; j < action.args.length; ++j) {
+                        var arg = action.args[j];
                         args[arg.name] = req.query[arg.name];
                     }
                     return {

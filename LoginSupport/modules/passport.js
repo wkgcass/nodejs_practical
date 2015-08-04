@@ -288,20 +288,7 @@ var actions = [
                                         if (docs == null || docs.length == 0) {
                                             doRegister();
                                         } else {
-                                            var regDoc = docs[0];
-                                            if (regDoc.dead_time < Date.now()) {
-                                                regColl.remove({
-                                                    "_id": regDoc._id
-                                                }, {}, function (err, res) {
-                                                    if (err) {
-                                                        callback(err, res);
-                                                    } else {
-                                                        doRegister();
-                                                    }
-                                                });
-                                            } else {
-                                                callback(-201, "email address in use");
-                                            }
+                                            callback(-201, "email address in use");
                                         }
                                     }
                                 });
@@ -321,6 +308,11 @@ var actions = [
                 "name": "emladdr",
                 "type": "string",
                 "description": "email address you registered"
+            },
+            {
+                "name": "code",
+                "type": "int",
+                "description": "activation code"
             }
         ],
         "return": {
@@ -569,6 +561,22 @@ var actions = [
                     }
                 }
             });
+        }
+    },
+    {
+        "name": "get_public_key",
+        "method": "getPublicKey",
+        "args": [],
+        "return": {
+            "success": {
+                "value": "{$public_key}",
+                "type": "string",
+                "description": "RSA public key used to encrypt password"
+            },
+            "error": []
+        },
+        "act": function (callback) {
+            callback(false, encoder.getKey());
         }
     }
 ];

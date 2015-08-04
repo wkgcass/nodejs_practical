@@ -110,6 +110,7 @@ var actions = [
                                                     });
                                                 }
                                                 callback(false, {
+                                                    "user_id": user._id,
                                                     "user_email": user.emladdr,
                                                     "token_id": token.token,
                                                     "ip_info": token.ip_info,

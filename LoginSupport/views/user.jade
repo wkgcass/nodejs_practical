@@ -1,0 +1,10 @@
+extends layout
+block content
+    .container
+        include navigator.jade
+        .row
+            .col-xs-3
+                include usersup/left.jade
+            .col-xs-9
+                .embed-responsive.embed-responsive-16by9
+                    iframe#frame.embed-responsive-item(src="#{default_url}&id=#{user.user_id}&from=cassite.net")

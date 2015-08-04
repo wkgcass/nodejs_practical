@@ -2,14 +2,13 @@ var express = require('express');
 var router = express.Router();
 var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
-var config = require("../global/config");
 
 router.get('/', function (req, res) {
     var module_name = "passport";
     var modObj = relation.getNamedModule(module_name);
     var act = controller.getActionAndArgs(req, modObj.actions);
 
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Type", "text/json");
 
     var doDefault = function () {
         var avaActions = controller.getAvailableActions(modObj);
@@ -41,6 +40,8 @@ router.get('/', function (req, res) {
         act.func(req.ip, act.args.emladdr, doPrint);
     } else if (act.action == "resend") {
         act.func(act.args.emladdr, doPrint);
+    } else if (act.action == "getPublicKey") {
+        act.func(doPrint);
     } else {
         doDefault();
     }
@@ -53,7 +54,7 @@ router.get('/:token', function (req, res) {
     var modObj = relation.getNamedModule(module_name);
     var act = controller.getActionAndArgs(req, modObj.actions);
 
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Type", "text/json");
 
     var doDefault = function () {
         var check = controller.getNamedActionFunc("check_token", modObj.actions);

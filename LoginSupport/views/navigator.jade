@@ -1,0 +1,11 @@
+nav.navbar.navbar-default
+    .container-fluid
+        .navbar-header
+            a.navbar-brand Cassite.net
+        ul.nav.navbar-nav.navbar-right
+            li.dropdown
+                a.dropdown-toggle(href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false") #{user.user_email}
+                    span.caret
+                ul.dropdown-menu
+                    li
+                        a(href="#" onclick="logout()") Logout
