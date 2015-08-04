@@ -75,23 +75,34 @@ router.get('/:token/p', function (req, res) {
     var token = req.params.token;
     var module_name = "user";
     var modObj = relation.getNamedModule(module_name);
-    var check = controller.getNamedActionFunc("check_token", modObj.actions);
 
-    check(req.ip, token, function (err, result) {
-        if (err) {
-            res.send("<script>alert('error:" + err + ", description:" + result + "');history.go(-1);</script>");
-        } else {
-            if (req.query.checkCurrent == "") {
-                res.render("usersup/current", {"user": result});
-            } else if (req.query.changePWD == "") {
-                res.render("usersup/changepwd", {"user": result});
-            } else if (req.query.checkTokens == "") {
-                res.render("usersup/tokens", {"user": result});
+    function doErr() {
+        res.send("<script>alert('error:" + err + ", description:" + result + "');history.go(-1);</script>");
+    }
+
+    if (req.query.checkCurrent == "") {
+        var check = controller.getNamedActionFunc("check_token", modObj.actions);
+        check(req.ip, token, function (err, result) {
+            if (err) {
+                doErr();
             } else {
-                res.send("Command Not Found...");
+                res.render("usersup/current", {"user": result});
             }
-        }
-    });
+        });
+    } else if (req.query.changePWD == "") {
+        res.render("usersup/changepwd");
+    } else if (req.query.checkTokens == "") {
+        var showAll = controller.getNamedActionFunc("show_all_tokens", modObj.actions);
+        showAll(req.ip, token, function (err, result) {
+            if (err) {
+                doErr();
+            } else {
+                res.render("usersup/tokens", {"tokens": result});
+            }
+        });
+    } else {
+        res.send("Command Not Found...");
+    }
 });
 
 

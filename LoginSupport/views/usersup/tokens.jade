@@ -1,0 +1,37 @@
+extends base
+block content
+    - for(var i=0;i<tokens.length;++i){
+        - var user=tokens[i];
+        .panel.panel-info
+            .panel-heading Token
+            .panel-body
+                table.table(border=0)
+                    tbody
+                        tr
+                            td User ID
+                            td #{user.user_id}
+                        tr
+                            td User Email
+                            td #{user.user_email}
+                        tr
+                            td Token ID
+                            td #{user.token_id}
+                        tr
+                            td IP Info
+                            td Country - #{user.ip_info.country}, Region - #{user.ip_info.region}, City - #{user.ip_info.city}
+                        tr
+                            td Last Visit
+                            td #{user.last_visit}
+                        tr
+                            td Dead Time
+                            td #{user.dead_time}
+                        - if(user.deprecated){
+                            tr.danger
+                                td Deprecated
+                                td #{user.deprecated}
+                        - }else{
+                            tr.success
+                                td Deprecated
+                                td #{user.deprecated}
+                        - }
+    - }

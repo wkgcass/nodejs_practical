@@ -3,6 +3,7 @@ script(src="javascripts/jsbn.js")
 script(src="javascripts/rsa.js")
 script(src="javascripts/pwd_rsa_encode.js")
 script(src="javascripts/login.js")
+script(src="../javascripts/login.js")
 
 br
 .panel.panel-default(style='background-color:#FFF')
@@ -11,7 +12,9 @@ br
         br
         input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
         input#pwd.form-control(type="password" placeholder="Password" required=true)
-        br
+        div(style="margin-top:7px;")
+        !="<input type=\"checkbox\"/> <font size=\"2px\">Cookie Me</font>"
+        div(style="margin-top:7px;")
         button.btn.btn-md.btn-primary.btn-block#loginbtn Login
         button.btn.btn-md.btn-default.btn-block(onclick="window.location.href = '?register&fill_emladdr=' + encodeURI($('#emladdr').val());") Register
         br

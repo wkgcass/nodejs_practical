@@ -1,0 +1,24 @@
+extends base
+block content
+    script(src="../../javascripts/cryptico.js")
+    script(src="../../javascripts/jsbn.js")
+    script(src="../../javascripts/rsa.js")
+    script(src="../../javascripts/pwd_rsa_encode.js")
+    script(src="../../javascripts/changepwd.js")
+
+    div.container
+        div(style="margin-left:auto;margin-right:auto")
+            br
+            .panel.panel-default(style='background-color:#E1E1E1')
+                .panel-body
+                    div(style='text-align:center')
+                        h2 Change Password
+                    br
+                    input#opwd.form-control(type="password" placeholder="Original Password" required=true)
+                    input#npwd.form-control(type="password" placeholder="New Password" required=true)
+                    input#rnpwd.form-control(type="password" placeholder="Re" required=true)
+                    p &nbsp;&nbsp;at least 6 characters, and mathces <code>/^[a-z0-9]+$/i</code>
+                    br
+                    button#changebtn.btn.btn-md.btn-warning.btn-block Do Change
+                    br
+                    p

@@ -87,6 +87,8 @@ router.get('/:token', function (req, res) {
             act.func(req.ip, token, doPrint);
         } else if (act.action == "changePWD") {
             act.func(req.ip, token, act.args.opwd, act.args.npwd, doPrint);
+        } else if (act.action == "allTokens") {
+            act.func(req.ip, token, doPrint);
         } else {
             doDefault();
         }

@@ -301,44 +301,142 @@ var actions = [
                                         tokenColl.remove({"_id": token._id});
                                         callback(101, "token not found");
                                     } else {
-                                        var user = userDocs[0];
-                                        try {
-                                            var op = encoder.decodeRSA(opwd);
-                                            var np = encoder.decodeRSA(npwd);
-                                        } catch (err) {
-                                            callback(err, null);
-                                            return;
-                                        }
-                                        if (validPwd(np)) {
-                                            if (encoder.saltMD5(op) == user.pwd) {
-                                                var saltMD5 = encoder.saltMD5(np);
-                                                // change pwd
-                                                coll.update({
-                                                    "_id": user._id
-                                                }, {
-                                                    "$set": {
-                                                        "pwd": saltMD5
+                                        ipcheck(ip, function (err, ipInfo) {
+                                            if (ipInfo.country == token.ip_info.country
+                                                && ipInfo.region == token.ip_info.region
+                                                && ipInfo.city == token.ip_info.city
+                                                ) {
+                                                var user = userDocs[0];
+                                                try {
+                                                    var op = encoder.decodeRSA(opwd);
+                                                    var np = encoder.decodeRSA(npwd);
+                                                } catch (err) {
+                                                    callback(err, null);
+                                                    return;
+                                                }
+                                                if (validPwd(np)) {
+                                                    if (encoder.saltMD5(op) == user.pwd) {
+                                                        var saltMD5 = encoder.saltMD5(np);
+                                                        // change pwd
+                                                        coll.update({
+                                                            "_id": user._id
+                                                        }, {
+                                                            "$set": {
+                                                                "pwd": saltMD5
+                                                            }
+                                                        });
+                                                        // disable all tokens
+                                                        tokenColl.update({
+                                                            "user": user._id,
+                                                            "deprecated": false
+                                                        }, {
+                                                            "$set": {
+                                                                "deprecated": true
+                                                            }
+                                                        }, {
+                                                            "multi": true
+                                                        });
+                                                        callback(false, 0);
+                                                    } else {
+                                                        callback(-501, "wrong original password");
                                                     }
-                                                });
-                                                // disable all tokens
-                                                tokenColl.update({
-                                                    "user": user._id,
-                                                    "deprecated": false
-                                                }, {
-                                                    "$set": {
-                                                        "deprecated": true
-                                                    }
-                                                }, {
-                                                    "multi": true
-                                                });
-                                                callback(false, 0);
+                                                } else {
+                                                    callback(-502, "invalid new password");
+                                                }
                                             } else {
-                                                callback(-501, "wrong original password");
+                                                callback(103, "requester does not have access to this token");
                                             }
-                                        } else {
-                                            callback(-502, "invalid new password");
-                                        }
+                                        });
                                     }
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
+    },
+    {
+        "name": "show_all_tokens",
+        "method": "allTokens",
+        "args": [
+            {
+                "name": "token",
+                "type": "string",
+                "description": "user token you retrieved when logging in"
+            }
+        ],
+        "return": {
+            "success": {
+                "value": "[{$token},...]",
+                "type": "array",
+                "description": "all not deprecated tokens"
+            },
+            "error": []
+        },
+        "act": function (ip, token, callback) {
+            tokenColl.find({
+                "token": token
+            }, function (err, docs) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    if (null == docs || docs.length == 0) {
+                        callback(101, "token not found");
+                    } else {
+                        var tok = docs[0];
+                        if (isDeprecated(tok)) {
+                            callback(102, "token is deprecated");
+                        } else {
+                            ipcheck(ip, function (err, ipInfo) {
+                                if (ipInfo.country == tok.ip_info.country
+                                    && ipInfo.region == tok.ip_info.region
+                                    && ipInfo.city == tok.ip_info.city
+                                    ) {
+                                    coll.find({
+                                        "_id": tok.user
+                                    }, function (err, userDocs) {
+                                        if (err) {
+                                            callback(err, null);
+                                        } else {
+                                            if (null == userDocs || userDocs.length == 0) {
+                                                tokenColl.remove({
+                                                    "_id": tok._id
+                                                });
+                                                callback(101, "token not found");
+                                            } else {
+                                                var user = userDocs[0];
+                                                tokenColl.find({
+                                                    "user": user._id,
+                                                    "dead_time": {
+                                                        "$gt": Date.now()
+                                                    }
+                                                }, function (err, tkDocs) {
+                                                    if (err) {
+                                                        callback(err, null);
+                                                    } else {
+                                                        var ret = [];
+                                                        if (null != tkDocs) {
+                                                            for (var i = 0; i < tkDocs.length; ++i) {
+                                                                ret.push({
+                                                                    "user_id": user._id,
+                                                                    "user_email": user.emladdr,
+                                                                    "token_id": tkDocs[i].token,
+                                                                    "ip_info": tkDocs[i].ip_info,
+                                                                    "last_visit": new Date(tkDocs[i].last_visit).toLocaleString(),
+                                                                    "dead_time": new Date(tkDocs[i].dead_time).toLocaleString(),
+                                                                    "deprecated": tkDocs[i].deprecated
+                                                                });
+                                                            }
+                                                        }
+                                                        callback(false, ret);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    callback(103, "requester does not have access to this token");
                                 }
                             });
                         }
