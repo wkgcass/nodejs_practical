@@ -5,20 +5,24 @@ $(document).ready(function () {
         var plainPWD = $("#pwd").val();
         pwd_rsa_encode(plainPWD, function (err, res) {
             if (err) {
-                alert(res);
                 $("#loginbtn").attr('disabled', false);
             } else {
                 $.ajax({
-                    url: "passport_api?login",
+                    url: "../passport_api?login",
                     data: {
                         emladdr: emladdr,
                         pwd: res
                     },
                     "success": function (data) {
                         if (data.state == "success") {
-                            window.location.href = "passport/" + data.res;
+                            if ($("#do_cookie").is(':checked')) {
+                                var exdate = new Date();
+                                exdate.setDate(exdate.getDate() + 30);
+                                document.cookie = "token=" + data.res + ";expires=" + exdate.toGMTString();
+                            }
+                            window.location.href = data.res;
                         } else {
-                            alert(data.res);
+                            sweetAlert(data.res, data.err, "error");
                         }
                         $("#loginbtn").attr('disabled', false);
                     }

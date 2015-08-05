@@ -1,3 +1,5 @@
+script(src="javascripts/navigator.js")
+
 nav.navbar.navbar-default
     .container-fluid
         .navbar-header
@@ -8,4 +10,9 @@ nav.navbar.navbar-default
                     span.caret
                 ul.dropdown-menu
                     li
-                        a(href="#" onclick="logout()") Logout
+                        a(href="#" onclick="dsablecrt()") Disable Current Token
+                        - if(show_remvoe_cookie){
+                            a(href="#" onclick="rmvcky()") Remove Cookie
+                        - }else{
+                            a(href="../passport") Switch Account
+                        - }

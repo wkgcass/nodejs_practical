@@ -4,17 +4,19 @@ $(document).ready(function () {
         var emladdr = $("#emladdr").val();
         var code = $("#code").val();
         $.ajax({
-            url: "passport_api?activate",
+            url: "../passport_api?activate",
             data: {
                 "emladdr": emladdr,
                 "code": code
             },
             success: function (data) {
                 if (data.state == "success") {
-                    alert("Done!");
-                    window.location.href = "?fill_emladdr=" + encodeURI(emladdr);
+                    sweetAlert("You have successfully activated your account", "Done!", "success");
+                    setTimeout(function () {
+                        window.location.href = "?fill_emladdr=" + encodeURI(emladdr);
+                    }, 5000);
                 } else {
-                    alert(data.res);
+                    sweetAlert(data.res, data.err, "error");
                 }
                 $("#actbtn").attr('disabled', false);
             }
@@ -30,19 +32,19 @@ $(document).ready(function () {
 function resend() {
     var emladdr = $("#emladdr").val();
     if (emladdr == "") {
-        alert("please write your email address in the text field");
+        sweetAlert("please write your email address in the text field");
         return;
     }
     $.ajax({
-        url: "passport_api?resend",
+        url: "../passport_api?resend",
         data: {
             "emladdr": emladdr
         },
         success: function (data) {
             if (data.state == "success") {
-                alert("Done!");
+                sweetAlert("Activation code has sent to your email address", "Done!", "success");
             } else {
-                alert(data.res);
+                sweetAlert(data.res, data.err, "error");
             }
             $("#actbtn").attr('disabled', false);
         }

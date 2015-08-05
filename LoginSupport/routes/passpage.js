@@ -4,6 +4,16 @@ var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
 var config = require("../global/config");
 
+// prepare
+var module_name = "user";
+var modObj = relation.getNamedModule(module_name);
+
+var check = controller.getNamedActionFunc("check_token", modObj.actions);
+
+function doErr(res, err, result) {
+    res.send("<script>alert('error:" + err + ", description:" + result + "');window.location.href='../passport';</script>");
+}
+
 router.get('/', function (req, res) {
     // fill email address
     var fill_emladdr = null;
@@ -14,30 +24,43 @@ router.get('/', function (req, res) {
     }
     // do routing
     if (req.query.register == "") {
-        res.render('register', {"fill_emladdr": fill_emladdr});
+        res.render('register', {"fill_emladdr": fill_emladdr, "title": "Register"});
     } else if (req.query.activate == "") {
-        res.render('activate', {"fill_emladdr": fill_emladdr});
+        res.render('activate', {"fill_emladdr": fill_emladdr, "title": "Activate"});
     } else if (req.query.lost_pwd == "") {
-        res.render('forget', {"fill_emladdr": fill_emladdr});
+        res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password"});
     } else {
-        res.render('login', {"fill_emladdr": fill_emladdr});
+        // login
+        if (req.cookies.token != undefined && req.cookies.token != "") {
+            var token = req.cookies.token;
+            check(req.ip, token, function (err, result) {
+                if (err || result.deprecated) {
+                    res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login"});
+                } else {
+                    res.redirect(req.cookies.token);
+                }
+            });
+        } else {
+            res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login"});
+        }
     }
 });
 
 router.get('/:token', function (req, res) {
-    // prepare
     var token = req.params.token;
-
-    var module_name = "user";
-    var modObj = relation.getNamedModule(module_name);
-
-    var check = controller.getNamedActionFunc("check_token", modObj.actions);
-
+    var show_remvoe_cookie = false;
+    if (req.cookies.token != undefined && req.cookies.token != "") {
+        show_remvoe_cookie = true;
+    }
     check(req.ip, token, function (err, result) {
         if (err) {
-            res.send("<script>alert('error:" + err + ", description:" + result + "');history.go(-1);</script>");
+            doErr(res, err, result);
         } else {
-            var options = {};
+            if (result.deprecated) {
+                doErr(res, 102, "token is deprecated");
+                return;
+            }
+            var options = {"title": "My Account"};
             options["items"] = JSON.parse(JSON.stringify(config.system.interfaces.imported));
             var flag = false;
             out:for (var key in req.query) {
@@ -65,6 +88,7 @@ router.get('/:token', function (req, res) {
                 options["default_url"] = token + "/p?checkCurrent";
             }
             options.user = result;
+            options.show_remvoe_cookie = show_remvoe_cookie;
             res.render("user", options);
         }
     });
@@ -76,15 +100,11 @@ router.get('/:token/p', function (req, res) {
     var module_name = "user";
     var modObj = relation.getNamedModule(module_name);
 
-    function doErr() {
-        res.send("<script>alert('error:" + err + ", description:" + result + "');history.go(-1);</script>");
-    }
-
     if (req.query.checkCurrent == "") {
         var check = controller.getNamedActionFunc("check_token", modObj.actions);
         check(req.ip, token, function (err, result) {
             if (err) {
-                doErr();
+                doErr(res, err, result);
             } else {
                 res.render("usersup/current", {"user": result});
             }
@@ -95,7 +115,7 @@ router.get('/:token/p', function (req, res) {
         var showAll = controller.getNamedActionFunc("show_all_tokens", modObj.actions);
         showAll(req.ip, token, function (err, result) {
             if (err) {
-                doErr();
+                doErr(res, err, result);
             } else {
                 res.render("usersup/tokens", {"tokens": result});
             }

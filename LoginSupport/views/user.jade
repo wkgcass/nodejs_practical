@@ -2,10 +2,11 @@ extends layout
 block content
     .container
         include navigator.jade
+        link(rel='stylesheet', href='stylesheets/sweetalert.css')
+        script(src="javascripts/sweetalert.min.js")
         .row
             .col-xs-3
                 include usersup/left.jade
             .col-xs-9
-                h2 #{title}
                 .embed-responsive.embed-responsive-16by9
                     iframe#frame.embed-responsive-item(src="#{default_url}&id=#{user.user_id}&from=cassite.net")

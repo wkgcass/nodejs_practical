@@ -1,5 +1,9 @@
 extends base
 block content
+    script(src="../../passport/javascripts/tokens.js")
+    div(style="height:45px")
+        div(style="float:right")
+            button.btn.btn-md.btn-danger(onclick="disable_all()") Disable All Tokens
     - for(var i=0;i<tokens.length;++i){
         - var user=tokens[i];
         .panel.panel-info

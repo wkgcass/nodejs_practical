@@ -3,7 +3,6 @@
  */
 $(document).ready(function () {
     $("#changebtn").click(function () {
-
         var url = window.location.href;
         url = url.substring(0, url.lastIndexOf("/"));
         url = url.substring(url.lastIndexOf("/") + 1);
@@ -12,23 +11,23 @@ $(document).ready(function () {
         var npwd = $("#npwd").val();
         var rnpwd = $("#rnpwd").val();
         if (npwd != rnpwd) {
-            alert("passwords should be the same");
+            sweetAlert("passwords should be the same", "Error", "error");
             return;
         }
         var regPWD = /^[a-z0-9]+$/i;
         if (!regPWD.test(rnpwd)) {
-            alert("invalid password");
+            sweetAlert("invalid password", "Error", "error");
             return;
         }
         $("#changebtn").attr('disabled', true);
         pwd_rsa_encode(rnpwd, function (err, res) { // new password
             if (err) {
-                alert(res);
+                sweetAlert(res, err, "error");
                 $("#changebtn").attr('disabled', false);
             } else {
                 pwd_rsa_encode(opwd, function (err, res2) { // original password
                     if (err) {
-                        alert(res2);
+                        sweetAlert(res2, err, "error");
                         $("#changebtn").attr('disabled', false);
                     } else {
                         $.ajax({
@@ -39,10 +38,12 @@ $(document).ready(function () {
                             },
                             "success": function (data) {
                                 if (data.state == "success") {
-                                    alert("Done!");
-                                    window.parent.location.href = "../";
+                                    sweetAlert("Password has changed!", "Done!", "success");
+                                    setTimeout(function () {
+                                        window.parent.location.href = "../";
+                                    }, 5000);
                                 } else {
-                                    alert(data.res);
+                                    sweetAlert(data.res, data.err, "error");
                                     $("#changebtn").attr('disabled', false);
                                 }
                             }

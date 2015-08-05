@@ -6,7 +6,7 @@ function pwd_rsa_encode(pwd, callback, baseUrl) {
         baseUrl = "";
     }
     $.ajax({
-        url: baseUrl + "passport_api?getPublicKey",
+        url: baseUrl + "../passport_api?getPublicKey",
         success: function (data) {
             if (data.state == "success") {
                 var key = data.res;

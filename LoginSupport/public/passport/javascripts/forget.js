@@ -3,16 +3,18 @@ $(document).ready(function () {
         $("#resetbtn").attr('disabled', true);
         var emladdr = $("#emladdr").val();
         $.ajax({
-            url: "passport_api?lostPWD",
+            url: "../passport_api?lostPWD",
             data: {
                 "emladdr": emladdr
             },
             success: function (data) {
                 if (data.state == "success") {
-                    alert("Done!");
-                    window.location.href = "?fill_emladdr=" + encodeURI(emladdr);
+                    sweetAlert("New generated password has sent to your email address", "Done!", "success");
+                    setTimeout(function () {
+                        window.location.href = "?fill_emladdr=" + encodeURI(emladdr);
+                    }, 5000);
                 } else {
-                    alert(data.res);
+                    sweetAlert(data.res, data.err, "error");
                 }
                 $("#resetbtn").attr('disabled', false);
             }

@@ -6,35 +6,37 @@ $(document).ready(function () {
         var rpwd = $("#rpwd").val();
         var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (!reg.test(emladdr)) {
-            alert("invalid email address");
+            sweetAlert("invalid email address", "Error", "error");
             return;
         }
         if (pwd != rpwd) {
-            alert("passwords should be the same");
+            sweetAlert("passwords should be the same", "Error", "error");
             return;
         }
         var regPWD = /^[a-z0-9]+$/i;
         if (!regPWD.test(rpwd)) {
-            alert("invalid password");
+            sweetAlert("invalid password", "Error", "error");
             return;
         }
         pwd_rsa_encode(rpwd, function (err, res) {
             if (err) {
-                alert(res);
+                sweetAlert(res, err, "error");
                 $("#regbtn").attr('disabled', false);
             } else {
                 $.ajax({
-                    "url": "passport_api?register",
+                    "url": "../passport_api?register",
                     "data": {
                         "emladdr": emladdr,
                         "pwd": res
                     },
                     "success": function (data) {
                         if (data.state == "success") {
-                            alert("Done!");
-                            window.location.href = "?activate&fill_emladdr=" + encodeURI(emladdr);
+                            sweetAlert("Done!", "Done!", "success");
+                            setTimeout(function () {
+                                window.location.href = "?activate&fill_emladdr=" + encodeURI(emladdr);
+                            }, 5000);
                         } else {
-                            alert(data.res);
+                            sweetAlert(data.res, data.err, "error");
                             $("#regbtn").attr('disabled', false);
                         }
                     }
