@@ -53,9 +53,11 @@ $(document).ready(function () {
             }
         }, "../../../");
     });
-    $("#rnpwd").keydown(function () {
+    $("#opwd,#npwd,#rnpwd").keydown(function () {
         if (event.keyCode == 13) {
-            $("#regbtn").trigger('click');
+            setTimeout(function () {
+                $("#changebtn").trigger('click');
+            }, 100);
         }
     });
 });

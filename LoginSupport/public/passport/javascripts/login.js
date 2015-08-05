@@ -30,9 +30,11 @@ $(document).ready(function () {
             }
         });
     });
-    $("#pwd").keydown(function () {
+    $("#emladdr,#pwd").keydown(function () {
         if (event.keyCode == 13) {
-            $("#loginbtn").trigger('click');
+            setTimeout(function () {
+                $("#loginbtn").trigger('click');
+            }, 100);
         }
     });
 });

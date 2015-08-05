@@ -10,9 +10,9 @@ nav.navbar.navbar-default
                     span.caret
                 ul.dropdown-menu
                     li
-                        a(href="#" onclick="dsablecrt()") Disable Current Token
+                        a(href="#" onclick="dsablecrt()") #{lan.a.logout}
                         - if(show_remvoe_cookie){
-                            a(href="#" onclick="rmvcky()") Remove Cookie
+                            a(href="#" onclick="rmvcky()") #{lan.a.dropcookie}
                         - }else{
-                            a(href="../passport") Switch Account
+                            a(href="../passport") #{lan.a.switch}
                         - }

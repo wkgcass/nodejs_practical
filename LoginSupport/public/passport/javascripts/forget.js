@@ -22,7 +22,9 @@ $(document).ready(function () {
     });
     $("#emladdr").keydown(function () {
         if (event.keyCode == 13) {
-            $("#resetbtn").trigger('click');
+            setTimeout(function () {
+                $("#resetbtn").trigger('click');
+            }, 100);
         }
     });
 });

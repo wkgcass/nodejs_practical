@@ -7,15 +7,18 @@ $(document).ready(function () {
         var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
         if (!reg.test(emladdr)) {
             sweetAlert("invalid email address", "Error", "error");
+            $("#regbtn").attr('disabled', false);
             return;
         }
         if (pwd != rpwd) {
             sweetAlert("passwords should be the same", "Error", "error");
+            $("#regbtn").attr('disabled', false);
             return;
         }
         var regPWD = /^[a-z0-9]+$/i;
         if (!regPWD.test(rpwd)) {
             sweetAlert("invalid password", "Error", "error");
+            $("#regbtn").attr('disabled', false);
             return;
         }
         pwd_rsa_encode(rpwd, function (err, res) {
@@ -44,9 +47,11 @@ $(document).ready(function () {
             }
         });
     });
-    $("#rpwd").keydown(function () {
+    $("#rpwd,#pwd,#emladdr").keydown(function () {
         if (event.keyCode == 13) {
-            $("#regbtn").trigger('click');
+            setTimeout(function () {
+                $("#regbtn").trigger('click');
+            }, 100);
         }
     });
 });

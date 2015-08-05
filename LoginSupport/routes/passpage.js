@@ -3,6 +3,7 @@ var router = express.Router();
 var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
 var config = require("../global/config");
+var language = require("../global/language");
 
 // prepare
 var module_name = "user";
@@ -15,6 +16,16 @@ function doErr(res, err, result) {
 }
 
 router.get('/', function (req, res) {
+    var lan = req.query.lan;
+    if (lan == undefined) {
+        lan = language.default_lan;
+    }
+    var acceptlan = req.header("Accept-Language");
+    if (acceptlan.toLowerCase().indexOf("zh-cn") >= 0) {
+        lan = "cn";
+    } else if (acceptlan.toLowerCase().indexOf("en") >= 0) {
+        lan = "en";
+    }
     // fill email address
     var fill_emladdr = null;
     if (req.query.fill_emladdr == undefined) {
@@ -24,29 +35,39 @@ router.get('/', function (req, res) {
     }
     // do routing
     if (req.query.register == "") {
-        res.render('register', {"fill_emladdr": fill_emladdr, "title": "Register"});
+        res.render('register', {"fill_emladdr": fill_emladdr, "title": "Register", "lan": language.lan[lan]});
     } else if (req.query.activate == "") {
-        res.render('activate', {"fill_emladdr": fill_emladdr, "title": "Activate"});
+        res.render('activate', {"fill_emladdr": fill_emladdr, "title": "Activate", "lan": language.lan[lan]});
     } else if (req.query.lost_pwd == "") {
-        res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password"});
+        res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password", "lan": language.lan[lan]});
     } else {
         // login
         if (req.cookies.token != undefined && req.cookies.token != "") {
             var token = req.cookies.token;
             check(req.ip, token, function (err, result) {
                 if (err || result.deprecated) {
-                    res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login"});
+                    res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan]});
                 } else {
                     res.redirect(req.cookies.token);
                 }
             });
         } else {
-            res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login"});
+            res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan]});
         }
     }
 });
 
 router.get('/:token', function (req, res) {
+    var lan = req.query.lan;
+    if (lan == undefined) {
+        lan = language.default_lan;
+    }
+    var acceptlan = req.header("Accept-Language");
+    if (acceptlan.toLowerCase().indexOf("zh-cn") >= 0) {
+        lan = "cn";
+    } else if (acceptlan.toLowerCase().indexOf("en") >= 0) {
+        lan = "en";
+    }
     var token = req.params.token;
     var show_remvoe_cookie = false;
     if (req.cookies.token != undefined && req.cookies.token != "") {
@@ -60,7 +81,7 @@ router.get('/:token', function (req, res) {
                 doErr(res, 102, "token is deprecated");
                 return;
             }
-            var options = {"title": "My Account"};
+            var options = {"title": "My Account", "lan": language.lan[lan], "lan_mapping": language.mapping[lan]};
             options["items"] = JSON.parse(JSON.stringify(config.system.interfaces.imported));
             var flag = false;
             out:for (var key in req.query) {
@@ -95,6 +116,16 @@ router.get('/:token', function (req, res) {
 });
 
 router.get('/:token/p', function (req, res) {
+    var lan = req.query.lan;
+    if (lan == undefined) {
+        lan = language.default_lan;
+    }
+    var acceptlan = req.header("Accept-Language");
+    if (acceptlan.toLowerCase().indexOf("zh-cn") >= 0) {
+        lan = "cn";
+    } else if (acceptlan.toLowerCase().indexOf("en") >= 0) {
+        lan = "en";
+    }
     // prepare
     var token = req.params.token;
     var module_name = "user";
@@ -106,18 +137,18 @@ router.get('/:token/p', function (req, res) {
             if (err) {
                 doErr(res, err, result);
             } else {
-                res.render("usersup/current", {"user": result});
+                res.render("usersup/current", {"user": result, "lan": language.lan[lan]});
             }
         });
     } else if (req.query.changePWD == "") {
-        res.render("usersup/changepwd");
+        res.render("usersup/changepwd", {"lan": language.lan[lan]});
     } else if (req.query.checkTokens == "") {
         var showAll = controller.getNamedActionFunc("show_all_tokens", modObj.actions);
         showAll(req.ip, token, function (err, result) {
             if (err) {
                 doErr(res, err, result);
             } else {
-                res.render("usersup/tokens", {"tokens": result});
+                res.render("usersup/tokens", {"tokens": result, "lan": language.lan[lan]});
             }
         });
     } else {

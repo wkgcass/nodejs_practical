@@ -7,15 +7,16 @@ script(src="javascripts/register.js")
 br
 .panel.panel-default(style='background-color:#FFF')
     .panel-body
-        h2 Register
+        h2 #{lan.title.register}
         br
-        input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
-        input#pwd.form-control(type="password" placeholder="Password" required=true)
-        input#rpwd.form-control(type="password" placeholder="Re" required=true)
-        p(style='font-size:14px') &nbsp;&nbsp;at least 6 characters, and mathces <code>/^[a-z0-9]+$/i</code>
+        input#emladdr.form-control(type="email" placeholder="#{lan.input.emladdr}" required=true value="#{fill_emladdr}")
+        input#pwd.form-control(type="password" placeholder="#{lan.input.password}" required=true)
+        input#rpwd.form-control(type="password" placeholder="#{lan.input.repassword}" required=true)
+        p(style='font-size:14px') &nbsp;&nbsp;
+            !=lan.hints.password_format
         br
-        button.btn.btn-md.btn-success.btn-block#regbtn Register
+        button.btn.btn-md.btn-success.btn-block#regbtn #{lan.button.register}
         br
         p
-            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") Go back to Login
+            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.login}
         br

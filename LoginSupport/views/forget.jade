@@ -9,13 +9,13 @@ block content
             .panel.panel-default(style='background-color:#E1E1E1')
                 .panel-body
                     div(style='text-align:center')
-                        h2 Forget Your Password?
+                        h2 #{lan.title.forget}
                     br
-                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
-                    p &nbsp;&nbsp;You must do this in places you usually log in.
+                    input#emladdr.form-control(type="email" placeholder="#{lan.input.emladdr}" required=true value="#{fill_emladdr}")
+                    p &nbsp;&nbsp;#{lan.hints.reset_password}
                     br
-                    button#resetbtn.btn.btn-md.btn-danger.btn-block Reset My Password
+                    button#resetbtn.btn.btn-md.btn-danger.btn-block #{lan.button.reset}
                     br
                     p
-                        a(style='float:left' href="#" onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") Go back to Login
+                        a(style='float:left' href="#" onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.login}
                     br

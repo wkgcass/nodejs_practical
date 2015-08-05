@@ -7,17 +7,18 @@ script(src="javascripts/login.js")
 br
 .panel.panel-default(style='background-color:#FFF')
     .panel-body
-        h2 Login
+        h2 #{lan.title.login}
         br
-        input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
-        input#pwd.form-control(type="password" placeholder="Password" required=true)
+        input#emladdr.form-control(type="email" placeholder="#{lan.input.emladdr}" required=true value="#{fill_emladdr}")
+        input#pwd.form-control(type="password" placeholder="#{lan.input.password}" required=true)
         div(style="margin-top:7px;")
-        !="<input id=\"do_cookie\" type=\"checkbox\"/> <font size=\"2px\">Cookie Me</font>"
+        !="<input id=\"do_cookie\" type=\"checkbox\"/>"
+            font(size="2px") &nbsp;&nbsp;#{lan.checkbox.cookie}
         div(style="margin-top:7px;")
-        button.btn.btn-md.btn-primary.btn-block#loginbtn Login
-        button.btn.btn-md.btn-default.btn-block(onclick="window.location.href = '?register&fill_emladdr=' + encodeURI($('#emladdr').val());") Register
+        button.btn.btn-md.btn-primary.btn-block#loginbtn #{lan.button.login}
+        button.btn.btn-md.btn-default.btn-block(onclick="window.location.href = '?register&fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.button.register}
         br
         p
-            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?activate&lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") Activate your account
-            a(style='float:right;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") Forget password?
+            a(style='float:left;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?activate&lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.activate}
+            a(style='float:right;font-size:14px;font-weight:400' href="#" onclick="window.location.href = '?lost_pwd&fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.forget}
         br

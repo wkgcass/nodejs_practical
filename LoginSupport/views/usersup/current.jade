@@ -1,34 +1,34 @@
 extends base
 block content
     .panel.panel-primary
-        .panel-heading Current Token
+        .panel-heading #{lan.title.currenttoken}
         .panel-body
             table.table(border=0)
                 tbody
                     tr
-                        td User ID
+                        td #{lan.li.user_id}
                         td #{user.user_id}
                     tr
-                        td User Email
+                        td #{lan.li.user_eml}
                         td #{user.user_email}
                     tr
-                        td Token ID
+                        td #{lan.li.token_id}
                         td #{user.token_id}
                     tr
-                        td IP Info
-                        td Country - #{user.ip_info.country}, Region - #{user.ip_info.region}, City - #{user.ip_info.city}
+                        td #{lan.li.ip_info}
+                        td #{lan.other.country}<code>#{user.ip_info.country}</code>, #{lan.other.region}<code>#{user.ip_info.region}</code>, #{lan.other.city}<code>#{user.ip_info.city}</code>
                     tr
-                        td Last Visit
+                        td #{lan.li.last_visit}
                         td #{user.last_visit}
                     tr
-                        td Dead Time
+                        td #{lan.li.dead_time}
                         td #{user.dead_time}
                     - if(user.deprecated){
                         tr.danger
-                            td Deprecated
+                            td #{lan.li.deprecated}
                             td #{user.deprecated}
                     - }else{
                         tr.success
-                            td Deprecated
+                            td #{lan.li.deprecated}
                             td #{user.deprecated}
                     - }

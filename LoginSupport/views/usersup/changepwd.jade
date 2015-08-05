@@ -12,13 +12,14 @@ block content
             .panel.panel-default(style='background-color:#E1E1E1')
                 .panel-body
                     div(style='text-align:center')
-                        h2 Change Password
+                        h2 #{lan.title.change}
                     br
-                    input#opwd.form-control(type="password" placeholder="Original Password" required=true)
-                    input#npwd.form-control(type="password" placeholder="New Password" required=true)
-                    input#rnpwd.form-control(type="password" placeholder="Re" required=true)
-                    p &nbsp;&nbsp;at least 6 characters, and mathces <code>/^[a-z0-9]+$/i</code>
+                    input#opwd.form-control(type="password" placeholder="#{lan.input.opwd}" required=true)
+                    input#npwd.form-control(type="password" placeholder="#{lan.input.npwd}" required=true)
+                    input#rnpwd.form-control(type="password" placeholder="#{lan.input.repassword}" required=true)
+                    p &nbsp;&nbsp;
+                        !=lan.hints.password_format
                     br
-                    button#changebtn.btn.btn-md.btn-warning.btn-block Do Change
+                    button#changebtn.btn.btn-md.btn-warning.btn-block #{lan.button.change}
                     br
                     p

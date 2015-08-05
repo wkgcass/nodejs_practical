@@ -9,16 +9,16 @@ block content
             .panel.panel-default(style='background-color:#E1E1E1')
                 .panel-body
                     div(style='text-align:center')
-                        h2 Activate
+                        h2 #{lan.title.activate}
                     br
-                    input#emladdr.form-control(type="email" placeholder="Email Address" required=true value="#{fill_emladdr}")
-                    input#code.form-control(type="text" placeholder="Activation Code" required=true)
-                    p &nbsp;&nbsp;activation code has sent to your email address
+                    input#emladdr.form-control(type="email" placeholder="#{lan.input.emladdr}" required=true value="#{fill_emladdr}")
+                    input#code.form-control(type="text" placeholder="#{lan.input.activationcode}" required=true)
+                    p &nbsp;&nbsp;#{lan.hints.activation_code}
                     br
-                    button#actbtn.btn.btn-md.btn-warning.btn-block Activate
+                    button#actbtn.btn.btn-md.btn-warning.btn-block #{lan.button.activate}
                     br
                     p
-                        a(style='float:left' href='#' onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") Go back to Login
-                        a(style='float:right' href="#" onclick="resend()") didn't receive activation code? send again..
+                        a(style='float:left' href='#' onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.login}
+                        a(style='float:right' href="#" onclick="resend()") #{lan.a.resend}
 
                     br
