@@ -2,8 +2,17 @@ var express = require('express');
 var router = express.Router();
 var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
+var config = require("../global/config");
 
 router.get('/', function (req, res) {
+    var req_ip = req.ip;
+    for (var i = 0; i < config.system.direct_ip.length; ++i) {
+        if (config.system.direct_ip[i] == req.ip) {
+            req_ip = req.query.ip == undefined ? req_ip : req.query.ip;
+            break;
+        }
+    }
+
     var module_name = "passport";
     var modObj = relation.getNamedModule(module_name);
     var act = controller.getActionAndArgs(req, modObj.actions);
@@ -31,13 +40,13 @@ router.get('/', function (req, res) {
     if (act == null) {
         doDefault();
     } else if (act.action == "login") {
-        act.func(req.ip, act.args.emladdr, act.args.pwd, doPrint);
+        act.func(req_ip, act.args.emladdr, act.args.pwd, doPrint);
     } else if (act.action == "register") {
         act.func(act.args.emladdr, act.args.pwd, doPrint);
     } else if (act.action == "activate") {
         act.func(act.args.emladdr, act.args.code, doPrint);
     } else if (act.action == "lostPWD") {
-        act.func(req.ip, act.args.emladdr, doPrint);
+        act.func(req_ip, act.args.emladdr, doPrint);
     } else if (act.action == "resend") {
         act.func(act.args.emladdr, doPrint);
     } else if (act.action == "getPublicKey") {
@@ -48,6 +57,14 @@ router.get('/', function (req, res) {
 });
 
 router.get('/:token', function (req, res) {
+    var req_ip = req.ip;
+    for (var i = 0; i < config.system.direct_ip.length; ++i) {
+        if (config.system.direct_ip[i] == req.ip) {
+            req_ip = req.query.ip == undefined ? req_ip : req.query.ip;
+            break;
+        }
+    }
+
     var token = req.params.token;
 
     var module_name = "user";
@@ -80,15 +97,15 @@ router.get('/:token', function (req, res) {
         doDefault();
     } else {
         if (act.action == "check") {
-            act.func(req.ip, token, doPrint, act.args.refresh);
+            act.func(req_ip, token, doPrint, act.args.refresh);
         } else if (act.action == "logout") {
-            act.func(req.ip, token, doPrint);
+            act.func(req_ip, token, doPrint);
         } else if (act.action == "logoutAll") {
-            act.func(req.ip, token, doPrint);
+            act.func(req_ip, token, doPrint);
         } else if (act.action == "changePWD") {
-            act.func(req.ip, token, act.args.opwd, act.args.npwd, doPrint);
+            act.func(req_ip, token, act.args.opwd, act.args.npwd, doPrint);
         } else if (act.action == "allTokens") {
-            act.func(req.ip, token, doPrint);
+            act.func(req_ip, token, doPrint);
         } else {
             doDefault();
         }

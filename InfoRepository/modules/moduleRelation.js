@@ -1,16 +1,11 @@
 var mapping = {
-    "root": {
-        "module": "./root",
+    "repository": {
+        "module": "./repository",
         "children": {
-            "users": {
-                "module": "./users",
+            "me": {
+                "module": "me",
                 "children": {
-                    "current_user": {
-                        "module": "./users/current"
-                    },
-                    "designated_user": {
-                        "module": "./users/designated"
-                    }
+
                 }
             }
         }
@@ -33,7 +28,7 @@ function Relation(mapping) {
             }
         }
         return null;
-    }
+    };
     var privateFindChildren = function (tree, module) {
         for (var mod in tree) {
             if (mod == module) {
@@ -58,15 +53,15 @@ function Relation(mapping) {
         }
         // not exist
         return null;
-    }
+    };
     this.findChildren = function (module) {
         return privateFindChildren(mapping, module);
-    }
+    };
     this.getNamedModule = function (module_name) {
         var toRequire = privateFindModule(mapping, module_name);
         if (toRequire == null) return null;
         return require(toRequire);
-    }
+    };
 }
 
 var relation = new Relation(mapping);

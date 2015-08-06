@@ -6,11 +6,11 @@
             -items[key].forEach(function(item){
                 - if(item.checked){
                     li.active.list-group-item
-                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&id=#{user.user_id}&from=cassite.net&lan=#{lan.is}');")
+                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&token=#{user.token_id}&from=cassite.net&lan=#{lan.is}');")
                             =lan_mapping[item.title]
                 -}else{
                     li.list-group-item
-                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&id=#{user.user_id}&from=cassite.net&lan=#{lan.is}');")
+                        a(href="#" onclick="$('#frame').attr('src','#{item.target_url}&token=#{user.token_id}&from=cassite.net&lan=#{lan.is}');")
                             =lan_mapping[item.title]
                 -}
             -})
