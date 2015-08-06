@@ -9,18 +9,12 @@ var actions = [
     {
         "name": "my_repositories",
         "method": "show",
-        "args": [
-            {
-                "name": "token",
-                "type": "string",
-                "description": "token retrieved when logging in"
-            }
-        ],
+        "args": [],
         "return": {
             "success": {
                 "value": "{R:[$read-only],W:[$writable],E:[$edit]}",
                 "type": "object",
-                "description": "retrieve repositories"
+                "description": "retrieve accessible repositories"
             },
             "error": []
         },
@@ -134,14 +128,85 @@ var actions = [
         }
     },
     {
+        "name": "my_groups",
+        "method": "groups",
+        "args": [],
+        "return": {
+            "success": {
+                "value": "{L:{$is_leader}, R:[$read-only],W:[$writable]}",
+                "type": "object",
+                "description": "retrieve joined groups"
+            },
+            "error": []
+        },
+        "act": function (ip, token, callback) {
+            check(ip, token, function (err, res) {
+                if (err) {
+                    callback(err, res);
+                } else {
+                    var user_id = res.user_id;
+                    grpColl.find({
+                        "member.read": user_id
+                    }, function (err, docs) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            var r = [];
+                            for (var i = 0; i < docs.length; ++i) {
+                                r.push({
+                                    "id": docs[i]._id,
+                                    "name": docs[i].name
+                                });
+                            }
+                            grpColl.find({
+                                "member.write": user_id
+                            }, function (err, docs) {
+                                if (err) {
+                                    callback(err, null);
+                                } else {
+                                    var w = [];
+                                    for (i = 0; i < docs.length; ++i) {
+                                        w.push({
+                                            "id": docs[i]._id,
+                                            "name": docs[i].name
+                                        });
+                                        grpColl.find({
+                                            "leader": user_id
+                                        }, function (err, docs) {
+                                            if (err) {
+                                                callback(err, null);
+                                            } else {
+                                                if (docs == null || docs.length == 0) {
+                                                    callback(false, {
+                                                        "L": null,
+                                                        "R": r,
+                                                        "W": w
+                                                    });
+                                                } else {
+                                                    callback(false, {
+                                                        "L": {
+                                                            "id": docs[0]._id,
+                                                            "name": docs[0].name
+                                                        },
+                                                        "R": r,
+                                                        "W": w
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    },
+    {
         "name": "create_repository",
         "method": "create",
         "args": [
-            {
-                "name": "token",
-                "type": "string",
-                "description": "token retrieved when logging in"
-            },
             {
                 "name": "name",
                 "type": "string",
@@ -149,7 +214,8 @@ var actions = [
             },
             {
                 "name": "encrypt",
-                "type": "enum(plain, aes, rsa)"
+                "type": "enum(plain, aes, rsa)",
+                "description": "encryption algorithm"
             },
             {
                 "name": "is_group",
@@ -226,6 +292,58 @@ var actions = [
                     } else {
                         doCreate(false, user_id);
                     }
+                }
+            });
+        }
+    },
+    {
+        "name": "create_group",
+        "method": "createGroup",
+        "args": [
+            {
+                "name": "name",
+                "type": "string",
+                "description": "name of the group"
+            }
+        ],
+        "return": {
+            "success": {
+                "value": 0,
+                "type": "int",
+                "description": "successfully created a group"
+            },
+            "error": [
+                {
+                    "value": -201,
+                    "type": "int",
+                    "description": "the user is already a group leader"
+                }
+            ]
+        },
+        "act": function (ip, token, name, callback) {
+            check(ip, token, function (err, res) {
+                if (err) {
+                    callback(err, res);
+                } else {
+                    var user_id = res.user_id;
+                    grpColl.find({
+                        "leader": user_id
+                    }, function (err, docs) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            if (null == docs || docs.length == 0) {
+                                grpColl.insert({
+                                    "name": name,
+                                    "leader": user_id,
+                                    "member": []
+                                });
+                                callback(false, 0);
+                            } else {
+                                callback(-201, "the user is already a group leader")
+                            }
+                        }
+                    });
                 }
             });
         }
