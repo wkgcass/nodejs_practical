@@ -221,6 +221,13 @@ var actions = [
                 "name": "is_group",
                 "type": "bool",
                 "description": "create the repository in the name of a group or a person"
+            },
+            {
+                "name": "struct",
+                "type": "array",
+                "format": "[$key,...]",
+                "optional": true,
+                "description": "structure(column names in input order) of the repository"
             }
         ],
         "return": {
@@ -233,16 +240,20 @@ var actions = [
                 {
                     "value": -101,
                     "description": "not a group leader"
+                },
+                {
+                    "value": -102,
+                    "description": "invalid structure format"
                 }
             ]
         },
-        "act": function (ip, token, name, encrypt, is_group, callback) {
+        "act": function (ip, token, name, encrypt, is_group, callback, struct) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
                 } else {
                     var user_id = res.user_id;
-                    var doCreate = function (is_group, id) {
+                    var doCreate = function (id) {
                         var toInsert;
                         if (is_group) {
                             toInsert = {
@@ -266,6 +277,21 @@ var actions = [
                                     "read": [], "write": [], "edit": []
                                 }
                             };
+                        }
+                        if (struct != undefined) {
+                            if (struct.length == undefined) {
+                                callback(-102, "invalid structure format");
+                                return;
+                            }
+                            for (var i = 0; i < struct.length; ++i) {
+                                if ((typeof struct[i]) != "string") {
+                                    callback(-102, "invalid structure format");
+                                    return;
+                                }
+                            }
+                            toInsert.structure = struct;
+                        } else {
+                            toInsert.structure = null;
                         }
                         repColl.insert(toInsert, {}, function (err, res) {
                             if (err) {

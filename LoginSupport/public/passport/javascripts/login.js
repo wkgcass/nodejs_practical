@@ -18,7 +18,9 @@ $(document).ready(function () {
                             if ($("#do_cookie").is(':checked')) {
                                 var exdate = new Date();
                                 exdate.setDate(exdate.getDate() + 30);
-                                document.cookie = "token=" + data.res + ";expires=" + exdate.toGMTString();
+                                document.cookie = "token=" + data.res + ";expires=" + exdate.toGMTString() + ";path=/";
+                            } else {
+                                document.cookie = "token=" + data.res + ";path=/";
                             }
                             window.location.href = data.res;
                         } else {
