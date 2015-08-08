@@ -51,6 +51,8 @@ router.get('/', function (req, res) {
         act.func(act.args.emladdr, doPrint);
     } else if (act.action == "getPublicKey") {
         act.func(doPrint);
+    } else if (act.action == "getEmladdrById") {
+        act.func(JSON.parse(act.args.user_ids), doPrint);
     } else {
         doDefault();
     }

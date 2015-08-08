@@ -1,8 +1,10 @@
 var db = require("./db");
 var config = require("../global/config");
 var check = require("./check");
+var checkEmladdr = require("./checkEmladdr");
 
 var repColl = db.get(config.mongo.coll.repository);
+var grpColl = db.get(config.mongo.coll.group);
 var recColl = db.get(config.mongo.coll.record);
 
 var doCheck = require("./checkRepAccess");
@@ -26,7 +28,7 @@ var actions = [
                     callback(err, res);
                 } else {
                     var user_id = res.user_id;
-                    checkRepAccess("edit", rep, user_id, function (err, res) {
+                    doCheck("edit", rep, user_id, function (err, res) {
                         if (err) {
                             callback(err, res);
                         } else {
@@ -82,7 +84,7 @@ var actions = [
                     callback(err, res);
                 } else {
                     var user_id = res.user_id;
-                    checkRepAccess("write", rep, user_id, function (err, res) {
+                    doCheck("write", rep, user_id, function (err, res) {
                         var rep = res.rep;
 
                         if (err) {
@@ -158,7 +160,7 @@ var actions = [
                     callback(err, res);
                 } else {
                     var user_id = res.user_id;
-                    checkRepAccess("read", rep, user_id, function (err, res) {
+                    doCheck("read", rep, user_id, function (err, res) {
                         if (err) {
                             callback(err, res);
                         } else {
@@ -170,9 +172,102 @@ var actions = [
                                 } else {
                                     var ret = [];
                                     for (var i = 0; i < docs.length; ++i) {
+                                        docs[i].content["_id"] = docs[i]._id;
                                         ret.push(docs[i].content);
                                     }
                                     callback(false, ret);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    },
+    {
+        "name": "show_permission",
+        "method": "permission",
+        "args": [],
+        "return": {
+            "success": {
+                "value": "{U:{R:[$read_only{user_id:...,emladdr:...}],W:[$writable],E:[$editable]}, G:{R,W,E}}",
+                "type": "object",
+                "description": "permission information"
+            },
+            "error": []
+        },
+        "actions": function (ip, token, rep, callback) {
+            check(ip, token, function (err, res) {
+                if (err) {
+                    callback(err, res);
+                } else {
+                    var user_id = res.user_id;
+                    doCheck("read", rep, user_id, function (err, res) {
+                        if (err) {
+                            callback(err, res);
+                        } else {
+                            var rep = res.rep;
+                            var userToCheck = [];
+                            for (var i = 0; i < rep.users.read.length; ++i) {
+                                userToCheck.push(rep.users.read[i]);
+                            }
+                            for (i = 0; i < rep.users.write.length; ++i) {
+                                userToCheck.push(rep.write[i]);
+                            }
+                            for (i = 0; i < rep.users.edit.length; ++i) {
+                                userToCheck.push(rep.edit[i]);
+                            }
+                            checkEmladdr(userToCheck, function (err, res) {
+                                if (err) {
+                                    callback(err, null);
+                                } else {
+                                    var ur = [];
+                                    for (i = 0; i < rep.users.read.length; ++i) {
+                                        ur.push({
+                                            "user_id": rep.users.read[i],
+                                            "emladdr": res[rep.users.read[i]]
+                                        });
+                                    }
+                                    var uw = [];
+                                    for (i = 0; i < rep.users.write.length; ++i) {
+                                        uw.push({
+                                            "user_id": rep.users.write[i],
+                                            "emladdr": res[rep.users.write[i]]
+                                        });
+                                    }
+                                    var ue = [];
+                                    for (i = 0; i < rep.users.edit.length; ++i) {
+                                        ue.push({
+                                            "user_id": rep.users.edit[i],
+                                            "emladdr": res[rep.users.edit[i]]
+                                        });
+                                    }
+
+                                    var findGroup = function (arr, cursor, store, cb) {
+                                        if (cursor >= arr.length) {
+                                            cb(false, store);
+                                        } else {
+                                            var group_id = arr[cursor];
+                                            grpColl.find({
+                                                "_id": group_id
+                                            }, function (err, docs) {
+                                                if (err) {
+                                                    callback(err, null);
+                                                } else {
+                                                    if (docs == null || docs.length == 0) {
+                                                        findGroup(arr, cursor + 1, store, cb);
+                                                    } else {
+                                                        store.push({
+                                                            "id": docs[0]._id,
+                                                            "name": docs[0].name
+                                                        });
+                                                        findGroup(arr, cursor + 1, store, cb);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    };
+                                    // TODO
                                 }
                             });
                         }

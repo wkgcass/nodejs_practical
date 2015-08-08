@@ -16,6 +16,23 @@ function doErr(res, err, result) {
 }
 
 router.get('/', function (req, res) {
+    // respond cookie check
+    if (req.query['cookieCheck'] != undefined) {
+        if (req.cookies.token != null && req.cookies.token != "") {
+            res.send({
+                "state": "success",
+                "res": req.cookies.token
+            });
+        } else {
+            res.send({
+                "state": "error",
+                "err": "404",
+                "res": "cookie with token not found"
+            })
+        }
+        return;
+    }
+
     var lan = req.query.lan;
     if (lan == undefined) {
         lan = language.default_lan;

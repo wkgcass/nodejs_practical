@@ -23,5 +23,20 @@ module.exports = [
         "value": 201,
         "type": "int",
         "description": "record not found"
+    },
+    {
+        "value": 301,
+        "type": "int",
+        "description": "user cannot write the group"
+    },
+    {
+        "value": 302,
+        "type": "int",
+        "description": "user cannot read the group"
+    },
+    {
+        "value": 303,
+        "type": "int",
+        "description": "group not found"
     }
 ];

@@ -133,7 +133,7 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": "{L:{$is_leader}, R:[$read-only],W:[$writable]}",
+                "value": "{L:{$is_leader}, M:[$is_member]",
                 "type": "object",
                 "description": "retrieve joined groups"
             },
@@ -146,57 +146,32 @@ var actions = [
                 } else {
                     var user_id = res.user_id;
                     grpColl.find({
-                        "member.read": user_id
+                        "member": user_id
                     }, function (err, docs) {
                         if (err) {
                             callback(err, null);
                         } else {
-                            var r = [];
-                            for (var i = 0; i < docs.length; ++i) {
-                                r.push({
+                            var m = [];
+                            for (i = 0; i < docs.length; ++i) {
+                                m.push({
                                     "id": docs[i]._id,
                                     "name": docs[i].name
                                 });
-                            }
-                            grpColl.find({
-                                "member.write": user_id
-                            }, function (err, docs) {
-                                if (err) {
-                                    callback(err, null);
+                                if (docs == null || docs.length == 0) {
+                                    callback(false, {
+                                        "L": null,
+                                        "M": m
+                                    });
                                 } else {
-                                    var w = [];
-                                    for (i = 0; i < docs.length; ++i) {
-                                        w.push({
-                                            "id": docs[i]._id,
-                                            "name": docs[i].name
-                                        });
-                                        grpColl.find({
-                                            "leader": user_id
-                                        }, function (err, docs) {
-                                            if (err) {
-                                                callback(err, null);
-                                            } else {
-                                                if (docs == null || docs.length == 0) {
-                                                    callback(false, {
-                                                        "L": null,
-                                                        "R": r,
-                                                        "W": w
-                                                    });
-                                                } else {
-                                                    callback(false, {
-                                                        "L": {
-                                                            "id": docs[0]._id,
-                                                            "name": docs[0].name
-                                                        },
-                                                        "R": r,
-                                                        "W": w
-                                                    });
-                                                }
-                                            }
-                                        });
-                                    }
+                                    callback(false, {
+                                        "L": {
+                                            "id": docs[0]._id,
+                                            "name": docs[0].name
+                                        },
+                                        "M": m
+                                    });
                                 }
-                            });
+                            }
                         }
                     });
                 }

@@ -578,6 +578,52 @@ var actions = [
         "act": function (callback) {
             callback(false, encoder.getKey());
         }
+    },
+    {
+        "name": "get_emladdr_by_id",
+        "method": "getEmladdrById",
+        "args": [
+            {
+                "name": "user_ids",
+                "type": "string",
+                "description": "user_id"
+            }
+        ],
+        "return": {
+            "success": {
+                "value": "$email_address",
+                "type": "string",
+                "description": "email address of the given user id"
+            },
+            "error": [
+                {
+                    "value": -1001,
+                    "type": "int",
+                    "description": "user_id not found"
+                }
+            ]
+        },
+        "act": function (user_ids, callback) {
+            coll.find({
+                "_id": {
+                    "$in": user_ids
+                }
+            }, function (err, docs) {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    if (docs == null || docs.length == 0) {
+                        callback(-1001, "user_id not found");
+                    } else {
+                        var ret = {};
+                        for (var i = 0; i < docs.length; ++i) {
+                            ret[docs[i]._id] = docs[i].emladdr;
+                        }
+                        callback(false, ret);
+                    }
+                }
+            });
+        }
     }
 ];
 

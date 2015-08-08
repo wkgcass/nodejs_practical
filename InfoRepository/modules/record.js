@@ -2,7 +2,6 @@ var db = require("./db");
 var config = require("../global/config");
 var check = require("./check");
 
-var repColl = db.get(config.mongo.coll.repository);
 var recColl = db.get(config.mongo.coll.record);
 
 var doCheck = require("./checkRepAccess");
@@ -57,7 +56,82 @@ var actions = [
                                 if (err) {
                                     callback(err, res);
                                 } else {
-                                    // TODO
+                                    var rep = res.rep;
+                                    if (rep.structure != null) {
+                                        var found = false;
+                                        for (var i = 0; i < rep.structure; ++i) {
+                                            if (rep.structure[i] == key) {
+                                                found = true;
+                                            }
+                                        }
+                                        if (!found) {
+                                            callback(-401, "cannot find designated key");
+                                            return;
+                                        }
+                                    }
+                                    var operation = {};
+                                    if (value == undefined) {
+                                        operation[key] = 0;
+                                    } else {
+                                        operation[key] = value;
+                                    }
+                                    if (value == undefined) {
+                                        recColl.update({
+                                            "_id": record
+                                        }, {
+                                            "$unset": operation
+                                        });
+                                    } else {
+                                        recColl.update({
+                                            "_id": record
+                                        }, {
+                                            "$set": operation
+                                        });
+                                    }
+                                    callback(false, 0);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    },
+    {
+        "name": "delete",
+        "method": "delete",
+        "args": [],
+        "return": {
+            "success": {
+                "value": 0,
+                "type": "int",
+                "description": "the record has been successfully deleted"
+            },
+            "error": []
+        },
+        "actions": function (ip, token, record, callback) {
+            check(ip, token, function (err, res) {
+                if (err) {
+                    callback(err, res);
+                } else {
+                    var user_id = res.user_id;
+                    recColl.find({
+                        "_id": record
+                    }, function (err, docs) {
+                        if (err) {
+                            callback(err, null);
+                        } else {
+                            if (docs == null || docs.length == 0) {
+                                callback(201, "record not found");
+                            }
+                            doCheck("write", docs[0].rep, user_id, function (err, res) {
+                                if (err) {
+                                    callback(err, res);
+                                } else {
+                                    recColl.remove({
+                                        "_id": record
+                                    });
+                                    callback(false, 0);
                                 }
                             });
                         }
