@@ -103,10 +103,14 @@ var actions = [
                     var user_id = res.user_id;
                     grpColl.find({
                         "_id": group,
-                        "$or": {
-                            "leader": user_id,
-                            "member": user_id
-                        }
+                        "$or": [
+                            {
+                                "leader": user_id
+                            },
+                            {
+                                "member": user_id
+                            }
+                        ]
                     }, function (err, docs) {
                         if (err) {
                             callback(err, null);
@@ -188,10 +192,11 @@ var actions = [
                                 grpColl.update({
                                     "_id": docs[0]._id
                                 }, {
-                                    "pull": {
+                                    "$pull": {
                                         "member": target
                                     }
                                 });
+                                callback(false, 0);
                             }
                         }
                     });
@@ -200,15 +205,9 @@ var actions = [
         }
     },
     {
-        "name": "delete_member",
-        "method": "delete",
-        "args": [
-            {
-                "name": "target",
-                "type": "string",
-                "description": "whose id to delete"
-            }
-        ],
+        "name": "drop_group",
+        "method": "drop",
+        "args": [],
         "return": {
             "success": {
                 "value": 0,
@@ -217,7 +216,7 @@ var actions = [
             },
             "error": []
         },
-        "act": function (ip, token, group, target, callback) {
+        "act": function (ip, token, group, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -234,7 +233,7 @@ var actions = [
                                 callback(301, "user cannot write the group");
                             } else {
                                 grpColl.remove({
-                                    "_id": docs[0]
+                                    "_id": docs[0]._id
                                 });
                                 callback(false, 0);
                             }
@@ -245,3 +244,11 @@ var actions = [
         }
     }
 ];
+
+function Groups() {
+    this.actions = actions;
+    this.description = "group management";
+    this.url = "/group/:group_id";
+}
+var groups = new Groups();
+module.exports = groups;

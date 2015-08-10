@@ -6,6 +6,7 @@ var regColl = db.get(config.mongo.reg_coll);
 var encoder = require("../global/encoder");
 var ipcheck = require("./ipcheck");
 var mail = require("./mail");
+var mongodb = require("mongodb");
 
 function isEmail(str) {
     var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
@@ -604,9 +605,14 @@ var actions = [
             ]
         },
         "act": function (user_ids, callback) {
+            var toCheck = [];
+            for (var i = 0; i < user_ids.length; ++i) {
+                toCheck.push(mongodb.ObjectID.createFromHexString(user_ids[i]));
+            }
+
             coll.find({
                 "_id": {
-                    "$in": user_ids
+                    "$in": toCheck
                 }
             }, function (err, docs) {
                 if (err) {

@@ -30,9 +30,9 @@ var actions = [
                         if (err) {
                             callback(err, null);
                         } else {
-                            var doPush = function (docs, toArr, cursor, callback) {
+                            var doPush = function (docs, toArr, cursor, cb) {
                                 if (docs.length == cursor) {
-                                    callback();
+                                    cb();
                                 } else {
                                     var doc = docs[cursor];
                                     var flag = true;
@@ -45,10 +45,11 @@ var actions = [
                                     if (flag) {
                                         toArr.push({
                                             "id": doc._id,
-                                            "name": doc.name
+                                            "name": doc.name,
+                                            "structure": doc.structure
                                         });
                                     }
-                                    doPush(docs, toArr, cursor + 1, callback);
+                                    doPush(docs, toArr, cursor + 1, cb);
                                 }
                             };
                             // user read
@@ -66,56 +67,79 @@ var actions = [
                                             repColl.find({
                                                 "users.edit": user_id
                                             }, function (err, docs) {
-                                                // user edit
-                                                var e = [];
-                                                doPush(docs, e, 0, function () {
-                                                    // get user group
-                                                    grpColl.find({
-                                                        "member": user_id
-                                                    }, function (err, docs) {
-                                                        if (err) {
-                                                            callback(err, null);
-                                                        } else {
-                                                            for (var i = 0; i < docs.length; ++i) {
-                                                                var group_id = docs[i]._id;
-                                                                repColl.find({
-                                                                    "groups.read": group_id
-                                                                }, function (err, docs) {
-                                                                    if (err) {
-                                                                        callback(err, null);
+                                                if (err) {
+                                                    callback(err, null);
+                                                } else {
+                                                    // user edit
+                                                    var e = [];
+                                                    doPush(docs, e, 0, function () {
+                                                        // get user group
+                                                        grpColl.find({
+                                                            "$or": [
+                                                                {
+                                                                    "leader": user_id
+                                                                },
+                                                                {
+                                                                    "member": user_id
+                                                                }
+                                                            ]
+                                                        }, function (err, docs) {
+                                                            if (err) {
+                                                                callback(err, null);
+                                                            } else {
+                                                                var pushGroups = function (grpArr, cursor, cb) {
+                                                                    if (cursor == grpArr.length) {
+                                                                        cb();
                                                                     } else {
-                                                                        // group read
-                                                                        doPush(docs, r, 0, function () {
-                                                                            repColl.find({
-                                                                                "groups.write": group_id
-                                                                            }, function (err, docs) {
-                                                                                if (err) {
-                                                                                    callback(err, null);
-                                                                                } else {
-                                                                                    // group write
-                                                                                    doPush(docs, w, 0, function () {
-                                                                                        repColl.find({
-                                                                                            "groups.edit": group_id
-                                                                                        }, function (err, docs) {
-                                                                                            // group edit
-                                                                                            doPush(docs, e, 0, function () {
-                                                                                                callback(false, {
-                                                                                                    "R": r,
-                                                                                                    "W": w,
-                                                                                                    "E": e
-                                                                                                })
+                                                                        var group_id = grpArr[cursor]._id;
+                                                                        repColl.find({
+                                                                            "groups.read": group_id
+                                                                        }, function (err, docs) {
+                                                                            if (err) {
+                                                                                callback(err, null);
+                                                                            } else {
+                                                                                // group read
+                                                                                doPush(docs, r, 0, function () {
+                                                                                    repColl.find({
+                                                                                        "groups.write": group_id
+                                                                                    }, function (err, docs) {
+                                                                                        if (err) {
+                                                                                            callback(err, null);
+                                                                                        } else {
+                                                                                            // group write
+                                                                                            doPush(docs, w, 0, function () {
+                                                                                                repColl.find({
+                                                                                                    "groups.edit": group_id
+                                                                                                }, function (err, docs) {
+                                                                                                    if (err) {
+                                                                                                        callback(err, null);
+                                                                                                    } else {
+                                                                                                        // group edit
+                                                                                                        doPush(docs, e, 0, function () {
+                                                                                                            pushGroups(grpArr, cursor + 1, cb);
+                                                                                                        });
+                                                                                                    }
+                                                                                                });
                                                                                             });
-                                                                                        });
-                                                                                    });
-                                                                                }
-                                                                            })
+                                                                                        }
+                                                                                    })
+                                                                                });
+                                                                            }
                                                                         });
                                                                     }
+                                                                };
+
+                                                                pushGroups(docs, 0, function () {
+                                                                    callback(false, {
+                                                                        "R": r,
+                                                                        "W": w,
+                                                                        "E": e
+                                                                    });
                                                                 });
                                                             }
-                                                        }
+                                                        });
                                                     });
-                                                });
+                                                }
                                             });
                                         });
                                     }
@@ -152,26 +176,34 @@ var actions = [
                             callback(err, null);
                         } else {
                             var m = [];
-                            for (i = 0; i < docs.length; ++i) {
+                            for (var i = 0; i < docs.length; ++i) {
                                 m.push({
                                     "id": docs[i]._id,
                                     "name": docs[i].name
                                 });
-                                if (docs == null || docs.length == 0) {
-                                    callback(false, {
-                                        "L": null,
-                                        "M": m
-                                    });
-                                } else {
-                                    callback(false, {
-                                        "L": {
-                                            "id": docs[0]._id,
-                                            "name": docs[0].name
-                                        },
-                                        "M": m
-                                    });
-                                }
                             }
+                            grpColl.find({
+                                "leader": user_id
+                            }, function (err, docs) {
+                                if (err) {
+                                    callback(err, null);
+                                } else {
+                                    if (docs == null || docs.length == 0) {
+                                        callback(false, {
+                                            "L": null,
+                                            "M": m
+                                        });
+                                    } else {
+                                        callback(false, {
+                                            "L": {
+                                                "id": docs[0]._id,
+                                                "name": docs[0].name
+                                            },
+                                            "M": m
+                                        });
+                                    }
+                                }
+                            });
                         }
                     });
                 }
@@ -284,14 +316,14 @@ var actions = [
                                 callback(err, null);
                             } else {
                                 if (docs != null && docs.length > 0) {
-                                    doCreate(true, docs[0]._id);
+                                    doCreate(docs[0]._id);
                                 } else {
                                     callback(-101, "not a group leader");
                                 }
                             }
                         });
                     } else {
-                        doCreate(false, user_id);
+                        doCreate(user_id);
                     }
                 }
             });
@@ -350,3 +382,11 @@ var actions = [
         }
     }
 ];
+
+function Users() {
+    this.actions = actions;
+    this.description = "my repository and group info";
+    this.url = "/:token";
+}
+var users = new Users();
+module.exports = users;

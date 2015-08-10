@@ -37,7 +37,7 @@ var actions = [
                 }
             ]
         },
-        "actions": function (ip, token, record, key, callback, value) {
+        "act": function (ip, token, record, key, callback, value) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -71,9 +71,9 @@ var actions = [
                                     }
                                     var operation = {};
                                     if (value == undefined) {
-                                        operation[key] = 0;
+                                        operation["content." + key] = 0;
                                     } else {
-                                        operation[key] = value;
+                                        operation["content." + key] = value;
                                     }
                                     if (value == undefined) {
                                         recColl.update({
@@ -109,7 +109,7 @@ var actions = [
             },
             "error": []
         },
-        "actions": function (ip, token, record, callback) {
+        "act": function (ip, token, record, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -141,3 +141,11 @@ var actions = [
         }
     }
 ];
+
+function Records() {
+    this.actions = actions;
+    this.description = "record management";
+    this.url = "/records/:record_id";
+}
+var records = new Records();
+module.exports = records;

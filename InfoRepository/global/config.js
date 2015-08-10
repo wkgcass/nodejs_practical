@@ -1,7 +1,6 @@
 module.exports = {
     "mongo": {
-        "url": "localhost",
-        "port": 27017,
+        "url": "localhost:27017",
         "db": "info",
         "coll": {
             "repository": "repository",
@@ -12,10 +11,10 @@ module.exports = {
     "system": {
         "interfaces": {
             "user": {
-                "url": "localhost:3000/passport/{$token}/?check&ip={$ip}&refresh=true"
+                "url": "http://localhost:3000/passport_api/{$token}/?check&ip={$ip}&refresh=true"
             },
             "emladdr": {
-                "url": "localhost:3000/passport/?getEmladdrById&user_ids={$user_id}"
+                "url": "http://localhost:3000/passport_api/?getEmladdrById&user_ids={$user_id}"
             }
         }
     }

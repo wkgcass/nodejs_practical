@@ -1,11 +1,25 @@
 var mapping = {
-    "repository": {
-        "module": "./repository",
+    "root": {
         "children": {
             "me": {
-                "module": "me",
+                "module": "./me",
                 "children": {
 
+                }
+            },
+            "repository": {
+                "module": "./rep",
+                "children": {
+                }
+            },
+            "record": {
+                "module": "./record",
+                "children": {
+                }
+            },
+            "group": {
+                "module": "./group",
+                "children": {
                 }
             }
         }

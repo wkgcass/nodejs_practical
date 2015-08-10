@@ -2,7 +2,11 @@ var http = require("http");
 var config = require("../global/config");
 
 module.exports = function (ip, token, callback) {
-    var req = http.get(config.system.interfaces.user.url.replace("{$token}", token).replace("{$ip}", ip),
+    if (token == null || token == undefined) {
+        callback(101, "token not found");
+        return;
+    }
+    var req = http.get(config.system.interfaces.user.url.replace("{$token}", encodeURI(token)).replace("{$ip}", encodeURI(ip)),
         function (res) {
             res.on('data', function (chunk) {
                 var json = JSON.parse(chunk);

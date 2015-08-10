@@ -2,12 +2,51 @@ var db = require("./db");
 var config = require("../global/config");
 var check = require("./check");
 var checkEmladdr = require("./checkEmladdr");
+var mongodb = require("mongodb");
 
 var repColl = db.get(config.mongo.coll.repository);
 var grpColl = db.get(config.mongo.coll.group);
 var recColl = db.get(config.mongo.coll.record);
 
 var doCheck = require("./checkRepAccess");
+
+var findIdInRep = function (rep, id, is_group) {
+    var i = 0;
+    if (is_group) {
+        for (i = 0; i < rep.groups.read.length; ++i) {
+            if (rep.groups.read[i] == id) {
+                return "read";
+            }
+        }
+        for (i = 0; i < rep.groups.write.length; ++i) {
+            if (rep.groups.write[i] == id) {
+                return "write";
+            }
+        }
+        for (i = 0; i < rep.groups.edit.length; ++i) {
+            if (rep.groups.edit[i] == id) {
+                return "edit";
+            }
+        }
+    } else {
+        for (i = 0; i < rep.users.read.length; ++i) {
+            if (rep.users.read[i] == id) {
+                return "read";
+            }
+        }
+        for (i = 0; i < rep.users.write.length; ++i) {
+            if (rep.users.write[i] == id) {
+                return "write";
+            }
+        }
+        for (i = 0; i < rep.users.edit.length; ++i) {
+            if (rep.users.edit[i] == id) {
+                return "edit";
+            }
+        }
+    }
+    return null;
+};
 
 var actions = [
     {
@@ -22,7 +61,7 @@ var actions = [
             },
             "error": []
         },
-        "actions": function (ip, token, rep, callback) {
+        "act": function (ip, token, rep, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -78,7 +117,7 @@ var actions = [
                 }
             ]
         },
-        "actions": function (ip, token, rep, record, callback) {
+        "act": function (ip, token, rep, record, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -120,7 +159,7 @@ var actions = [
                             }
 
                             recColl.insert({
-                                "rep": rep,
+                                "rep": rep._id.toString(),
                                 "content": record
                             });
                             callback(false, 0);
@@ -137,24 +176,13 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": 0,
+                "value": "{structure:[...],records:[{...},...]}",
                 "type": "int",
                 "description": "the repository has been dropped"
             },
-            "error": [
-                {
-                    "value": -301,
-                    "type": "int",
-                    "description": "invalid record format"
-                },
-                {
-                    "value": -302,
-                    "type": "int",
-                    "description": "record don't match columns defined in repository"
-                }
-            ]
+            "error": []
         },
-        "actions": function (ip, token, rep, callback) {
+        "act": function (ip, token, rep, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -164,18 +192,29 @@ var actions = [
                         if (err) {
                             callback(err, res);
                         } else {
+                            var rep_obj = res.rep;
                             recColl.find({
                                 "rep": rep
                             }, function (err, docs) {
                                 if (err) {
                                     callback(err, null);
                                 } else {
-                                    var ret = [];
-                                    for (var i = 0; i < docs.length; ++i) {
-                                        docs[i].content["_id"] = docs[i]._id;
-                                        ret.push(docs[i].content);
-                                    }
-                                    callback(false, ret);
+                                    var doPush = function (arr, cursor, toArr, cb) {
+                                        if (arr.length == cursor) {
+                                            cb(toArr);
+                                        } else {
+                                            arr[cursor].content._id = arr[cursor]._id;
+                                            toArr.push(arr[cursor].content);
+                                            doPush(arr, cursor + 1, toArr, cb);
+                                        }
+                                    };
+
+                                    doPush(docs, 0, [], function (res) {
+                                        callback(false, {
+                                            "structure": rep_obj.structure,
+                                            "records": res
+                                        });
+                                    });
                                 }
                             });
                         }
@@ -196,7 +235,7 @@ var actions = [
             },
             "error": []
         },
-        "actions": function (ip, token, rep, callback) {
+        "act": function (ip, token, rep, callback) {
             check(ip, token, function (err, res) {
                 if (err) {
                     callback(err, res);
@@ -212,14 +251,14 @@ var actions = [
                                 userToCheck.push(rep.users.read[i]);
                             }
                             for (i = 0; i < rep.users.write.length; ++i) {
-                                userToCheck.push(rep.write[i]);
+                                userToCheck.push(rep.users.write[i]);
                             }
                             for (i = 0; i < rep.users.edit.length; ++i) {
-                                userToCheck.push(rep.edit[i]);
+                                userToCheck.push(rep.users.edit[i]);
                             }
                             checkEmladdr(userToCheck, function (err, res) {
                                 if (err) {
-                                    callback(err, null);
+                                    callback(err, res);
                                 } else {
                                     var ur = [];
                                     for (i = 0; i < rep.users.read.length; ++i) {
@@ -245,7 +284,7 @@ var actions = [
 
                                     var findGroup = function (arr, cursor, store, cb) {
                                         if (cursor >= arr.length) {
-                                            cb(false, store);
+                                            cb(store);
                                         } else {
                                             var group_id = arr[cursor];
                                             grpColl.find({
@@ -258,7 +297,7 @@ var actions = [
                                                         findGroup(arr, cursor + 1, store, cb);
                                                     } else {
                                                         store.push({
-                                                            "id": docs[0]._id,
+                                                            "group_id": docs[0]._id.toString(),
                                                             "name": docs[0].name
                                                         });
                                                         findGroup(arr, cursor + 1, store, cb);
@@ -267,7 +306,25 @@ var actions = [
                                             });
                                         }
                                     };
-                                    // TODO
+
+                                    findGroup(rep.groups.read, 0, [], function (gr) {
+                                        findGroup(rep.groups.write, 0, [], function (gw) {
+                                            findGroup(rep.groups.edit, 0, [], function (ge) {
+                                                callback(false, {
+                                                    "U": {
+                                                        "R": ur,
+                                                        "W": uw,
+                                                        "E": ue
+                                                    },
+                                                    "G": {
+                                                        "R": gr,
+                                                        "W": gw,
+                                                        "E": ge
+                                                    }
+                                                });
+                                            });
+                                        })
+                                    });
                                 }
                             });
                         }
@@ -275,5 +332,119 @@ var actions = [
                 }
             });
         }
+    },
+    {
+        "name": "set_permission",
+        "method": "setPermission",
+        "args": [
+            {
+                "name": "id",
+                "type": "string",
+                "description": "(user_id or group_id) whose id to add"
+            },
+            {
+                "name": "is_group",
+                "type": "bool",
+                "description": "is group"
+            },
+            {
+                "name": "permission",
+                "type": "enum(R,W,E)",
+                "optional": true,
+                "description": "permission level R:read-only, W:writable, E:editable(can change permission), undefined means remove"
+            }
+        ],
+        "return": {
+            "success": {
+                "value": 0,
+                "type": "int",
+                "description": "successfully added permission"
+            },
+            "error": [
+                {
+                    "value": -701,
+                    "type": "int",
+                    "description": "permission alias not found"
+                }
+            ]
+        },
+        "act": function (ip, token, rep, id, is_group, callback, permission) {
+            check(ip, token, function (err, res) {
+                if (err) {
+                    callback(err, res);
+                } else {
+                    var user_id = res.user_id;
+                    doCheck("edit", rep, user_id, function (err, res) {
+                        if (err) {
+                            callback(err, res);
+                        } else {
+                            var rep = res.rep;
+                            var per = findIdInRep(rep, id, is_group);
+
+                            var doSet = function () {
+                                if (permission == undefined) {
+                                    callback(false, 0);
+                                    return;
+                                }
+                                if (permission != "R" && permission != "W" && permission != "E") {
+                                    callback(-701, "permission alias not found");
+                                } else {
+                                    var operation = {};
+                                    var act = null;
+                                    if (permission == "R") {
+                                        act = "read";
+                                    } else if (permission == "W") {
+                                        act = "write";
+                                    } else if (permission == "E") {
+                                        act = "edit";
+                                    }
+                                    if (is_group) {
+                                        operation["groups." + act] = id;
+                                    } else {
+                                        operation["users." + act] = id;
+                                    }
+                                    repColl.update({
+                                        "_id": rep._id
+                                    }, {
+                                        "$push": operation
+                                    });
+                                    callback(false, 0);
+                                }
+                            };
+
+                            if (per == null) {
+                                doSet();
+                            } else {
+                                var operation = {};
+                                if (is_group) {
+                                    operation["groups." + per] = id
+                                } else {
+                                    operation["users." + per] = id
+                                }
+                                repColl.update({
+                                    "_id": rep._id
+                                }, {
+                                    "$pull": operation
+                                }, {}, function (err, res) {
+                                    if (err) {
+                                        callback(err, res);
+                                    } else {
+                                        doSet();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
     }
 ];
+
+function Rep() {
+    this.actions = actions;
+    this.description = "repository management";
+    this.url = "/rep/:repository_id";
+}
+var rep = new Rep();
+module.exports = rep;

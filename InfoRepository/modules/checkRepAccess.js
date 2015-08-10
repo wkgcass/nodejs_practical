@@ -68,19 +68,22 @@ module.exports = function (toCheck, rep, user_id, callback) {
                 }
 
                 grpColl.find({
-                    "$or": {
-                        "member": user_id,
-                        "leader": user_id
-                    }
+                    "$or": [
+                        {
+                            "member": user_id
+                        },
+                        {
+                            "leader": user_id
+                        }
+                    ]
                 }, function (err, docs) {
                     if (err) {
                         callback(err, null);
                     } else {
-
                         var checkGroup = function (key) {
                             for (var i = 0; i < docs.length; ++i) {
                                 for (var j = 0; j < rep.groups[key].length; ++j) {
-                                    if (rep.groups[key][j] == docs[i]._id) {
+                                    if (rep.groups[key][j] == docs[i]._id.toString()) {
                                         return {
                                             "is_group": true,
                                             "id": docs[i]._id,

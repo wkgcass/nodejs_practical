@@ -23,7 +23,6 @@ router.get('/', function (req, res) {
         var avaActions = controller.getAvailableActions(modObj);
         var avaChildren = controller.getAvailableChildren(module_name);
         res.send(controller.appendGuide({
-            "info": "RSA public key can be downloaded from '../keys/public_key.pem'",
             "global_exceptions": require("../modules/exceptions")
         }, avaActions, avaChildren));
     };
@@ -52,7 +51,7 @@ router.get('/', function (req, res) {
     } else if (act.action == "getPublicKey") {
         act.func(doPrint);
     } else if (act.action == "getEmladdrById") {
-        act.func(JSON.parse(act.args.user_ids), doPrint);
+        act.func(JSON.parse(act.args.user_ids).arr, doPrint);
     } else {
         doDefault();
     }

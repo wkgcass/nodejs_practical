@@ -19,16 +19,31 @@ router.get('/', function (req, res) {
     // respond cookie check
     if (req.query['cookieCheck'] != undefined) {
         if (req.cookies.token != null && req.cookies.token != "") {
-            res.send({
-                "state": "success",
-                "res": req.cookies.token
-            });
+            if (req.query.callback == undefined) {
+                res.send({
+                    "state": "success",
+                    "res": req.cookies.token
+                });
+            } else {
+                res.send(req.query.callback + "(" + JSON.stringify({
+                    "state": "success",
+                    "res": req.cookies.token
+                }) + ")");
+            }
         } else {
-            res.send({
-                "state": "error",
-                "err": "404",
-                "res": "cookie with token not found"
-            })
+            if (req.query.callback == undefined) {
+                res.send({
+                    "state": "error",
+                    "err": "404",
+                    "res": "cookie with token not found"
+                });
+            } else {
+                res.send(req.query.callback + "(" + JSON.stringify({
+                    "state": "error",
+                    "err": "404",
+                    "res": "cookie with token not found"
+                }) + ")");
+            }
         }
         return;
     }
@@ -59,7 +74,7 @@ router.get('/', function (req, res) {
         res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password", "lan": language.lan[lan]});
     } else {
         // login
-        if (req.cookies.token != undefined && req.cookies.token != "") {
+        if (req.cookies.token != undefined && req.cookies.token != "" && (req.cookies.is_tmp == undefined || req.cookies.is_tmp != "true")) {
             var token = req.cookies.token;
             check(req.ip, token, function (err, result) {
                 if (err || result.deprecated) {
