@@ -143,13 +143,17 @@ module.exports = {
             "Account": "账户",
             "Current Token": "当前Token",
             "Change Password": "修改密码",
-            "Check My Tokens": "查看我的Token"
+            "Check My Tokens": "查看我的Token",
+            "Repository": "数据仓库",
+            "My Repositories": "我的数据"
         },
         "en": {
             "Account": "Account",
             "Current Token": "Current Token",
             "Change Password": "Change Password",
-            "Check My Tokens": "Check My Tokens"
+            "Check My Tokens": "Check My Tokens",
+            "Repository": "Repository",
+            "My Repositories": "My Repositories"
         }
     }
 };

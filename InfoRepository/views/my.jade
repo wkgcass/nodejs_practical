@@ -1,0 +1,67 @@
+extends inframe
+block main
+    br
+    .row
+        .col-xs-10
+            h4 Repositories
+        .col-xs-2(style="text-align:right")
+            button.btn.btn-md.btn-success#repCreate Create
+    - if(rep.R.length!=0){
+        - for(var i=0;i<rep.R.length;++i){
+            .panel.panel-info
+                .panel-heading
+                    .row
+                        .col-xs-10 #{rep.R[i].name}
+                        .col-xs-1 R
+                        .col-xs-1
+                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.R[i].id}')")
+        - }
+    - }
+    - if(rep.W.length!=0){
+        - for(i=0;i<rep.W.length;++i){
+            .panel.panel-warning
+                .panel-heading
+                    .row
+                        .col-xs-10 #{rep.W[i].name}
+                        .col-xs-1 W
+                        .col-xs-1
+                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.W[i].id}')")
+        - }
+    - }
+    - if(rep.E.length!=0){
+        - for(i=0;i<rep.E.length;++i){
+            .panel.panel-danger
+                .panel-heading
+                    .row
+                        .col-xs-10 #{rep.E[i].name}
+                        .col-xs-1 E
+                        .col-xs-1
+                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.E[i].id}')")
+        - }
+    - }
+
+    .row
+        .col-xs-10
+            h4 Groups
+        .col-xs-2(style="text-align:right")
+            - if(grp.leader==null){
+                button.btn.btn-md.btn-warning#grpCreate Create
+            - }
+    - if(grp.leader!=null){
+        .panel.panel-primary
+            .panel-heading
+                .row
+                    .col-xs-9 #{grp.L.name}
+                    .col-xs-2 is leader
+                    .col-xs-1
+                        span.glyphicon.glyphicon-chevron-down
+    - }
+    - for(i=0;i<grp.M.length;++i){
+        .panel.panel-success
+            .panel-heading
+                .row
+                    .col-xs-9 #{grp.M[i].name}
+                    .col-xs-2 joined
+                    .col-xs-1
+                        span.glyphicon.glyphicon-chevron-down
+    - }

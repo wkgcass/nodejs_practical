@@ -2,7 +2,6 @@ var db = require("./db");
 var config = require("../global/config");
 var check = require("./check");
 var checkEmladdr = require("./checkEmladdr");
-var mongodb = require("mongodb");
 
 var repColl = db.get(config.mongo.coll.repository);
 var grpColl = db.get(config.mongo.coll.group);
@@ -176,7 +175,7 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": "{structure:[...],records:[{...},...]}",
+                "value": "{name:'',structure:[...],records:[{...},...]}",
                 "type": "int",
                 "description": "the repository has been dropped"
             },
@@ -211,6 +210,7 @@ var actions = [
 
                                     doPush(docs, 0, [], function (res) {
                                         callback(false, {
+                                            "name": rep_obj.name,
                                             "structure": rep_obj.structure,
                                             "records": res
                                         });
