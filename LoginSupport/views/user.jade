@@ -1,6 +1,17 @@
 extends layout
 block content
-    .container
+    - if(!is_phone){
+        .container
+            include navigator.jade
+            link(rel='stylesheet', href='http://7xkuii.com1.z0.glb.clouddn.com/sweetalert.css')
+            script(src="http://7xkuii.com1.z0.glb.clouddn.com/sweetalert.min.js")
+            .row
+                .col-xs-3
+                    include usersup/left.jade
+                .col-xs-9
+                    .embed-responsive.embed-responsive-16by9
+                        iframe#frame.embed-responsive-item(src="#{default_url}&id=#{user.user_id}&from=cassite.net&lan=#{lan.is}")
+    - }else{
         include navigator.jade
         link(rel='stylesheet', href='http://7xkuii.com1.z0.glb.clouddn.com/sweetalert.css')
         script(src="http://7xkuii.com1.z0.glb.clouddn.com/sweetalert.min.js")
@@ -10,3 +21,4 @@ block content
             .col-xs-9
                 .embed-responsive.embed-responsive-16by9
                     iframe#frame.embed-responsive-item(src="#{default_url}&id=#{user.user_id}&from=cassite.net&lan=#{lan.is}")
+    - }

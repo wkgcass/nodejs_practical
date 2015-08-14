@@ -26,7 +26,8 @@ module.exports = {
                 "activate": "激活",
                 "reset": "重置我的密码",
                 "change": "修改",
-                "disable_all_tokens": "注销所有Token"
+                "disable_all_tokens": "注销所有Token",
+                "show_inner_in_new_window": "在新窗口打开内嵌页面"
             },
             "checkbox": {
                 "cookie": "使用Cookie记住我"
@@ -94,7 +95,8 @@ module.exports = {
                 "activate": "Activate",
                 "reset": "Reset My Password",
                 "change": "Do Change",
-                "disable_all_tokens": "Disable All Tokens"
+                "disable_all_tokens": "Disable All Tokens",
+                "show_inner_in_new_window": "Show inner frame in new window"
             },
             "checkbox": {
                 "cookie": "Cookie Me"

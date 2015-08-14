@@ -16,6 +16,12 @@ function doErr(res, err, result) {
 }
 
 router.get('/', function (req, res) {
+    // check phone
+    var is_phone = true;
+    if (/mobile/i.test(req.headers['user-agent']))
+        is_phone = true;
+    else
+        is_phone = false;
     // respond cookie check
     if (req.query['cookieCheck'] != undefined) {
         if (req.cookies.token != null && req.cookies.token != "") {
@@ -67,29 +73,35 @@ router.get('/', function (req, res) {
     }
     // do routing
     if (req.query.register == "") {
-        res.render('register', {"fill_emladdr": fill_emladdr, "title": "Register", "lan": language.lan[lan]});
+        res.render('register', {"fill_emladdr": fill_emladdr, "title": "Register", "lan": language.lan[lan], "is_phone": is_phone});
     } else if (req.query.activate == "") {
-        res.render('activate', {"fill_emladdr": fill_emladdr, "title": "Activate", "lan": language.lan[lan]});
+        res.render('activate', {"fill_emladdr": fill_emladdr, "title": "Activate", "lan": language.lan[lan], "is_phone": is_phone});
     } else if (req.query.lost_pwd == "") {
-        res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password", "lan": language.lan[lan]});
+        res.render('forget', {"fill_emladdr": fill_emladdr, "title": "Forget Password", "lan": language.lan[lan], "is_phone": is_phone});
     } else {
         // login
         if (req.cookies.token != undefined && req.cookies.token != "" && (req.cookies.is_tmp == undefined || req.cookies.is_tmp != "true")) {
             var token = req.cookies.token;
             check(req.ip, token, function (err, result) {
                 if (err || result.deprecated) {
-                    res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan]});
+                    res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan], "is_phone": is_phone});
                 } else {
                     res.redirect(req.cookies.token);
                 }
             });
         } else {
-            res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan]});
+            res.render('login', {"fill_emladdr": fill_emladdr, "title": "Login", "lan": language.lan[lan], "is_phone": is_phone});
         }
     }
 });
 
 router.get('/:token', function (req, res) {
+    // check phone
+    var is_phone = true;
+    if (/mobile/i.test(req.headers['user-agent']))
+        is_phone = true;
+    else
+        is_phone = false;
     var lan = req.query.lan;
     if (lan == undefined) {
         lan = language.default_lan;
@@ -113,7 +125,7 @@ router.get('/:token', function (req, res) {
                 doErr(res, 102, "token is deprecated");
                 return;
             }
-            var options = {"title": "My Account", "lan": language.lan[lan], "lan_mapping": language.mapping[lan]};
+            var options = {"title": "My Account", "lan": language.lan[lan], "lan_mapping": language.mapping[lan], "is_phone": is_phone};
             options["items"] = JSON.parse(JSON.stringify(config.system.interfaces.imported));
             var flag = false;
             out:for (var key in req.query) {

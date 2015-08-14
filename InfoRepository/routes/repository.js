@@ -3,6 +3,19 @@ var router = express.Router();
 var controller = require("../modules/controller");
 var relation = require("../modules/moduleRelation");
 
+function getClientIp(req) {
+    var ipAddress;
+    var forwardedIpsStr = req.header('x-forwarded-for');
+    if (forwardedIpsStr) {
+        var forwardedIps = forwardedIpsStr.split(',');
+        ipAddress = forwardedIps[0];
+    }
+    if (!ipAddress) {
+        ipAddress = req.connection.remoteAddress;
+    }
+    return ipAddress;
+};
+
 router.get('/', function (req, res) {
     var module_name = "root";
 
@@ -48,13 +61,13 @@ router.get('/:token', function (req, res, next) {
     if (act == null) {
         doDefault();
     } else if (act.action == "show") {
-        act.func(req.ip, token, doPrint);
+        act.func(getClientIp(req), token, doPrint);
     } else if (act.action == "groups") {
-        act.func(req.ip, token, doPrint);
+        act.func(getClientIp(req), token, doPrint);
     } else if (act.action == "create") {
-        act.func(req.ip, token, act.args.name, act.args.encrypt, act.args.is_group == "true", doPrint, act.args.struct == undefined ? undefined : JSON.parse(act.args.struct));
+        act.func(getClientIp(req), token, act.args.name, act.args.encrypt, act.args.is_group == "true", doPrint, act.args.struct == undefined ? undefined : JSON.parse(act.args.struct));
     } else if (act.action == "createGroup") {
-        act.func(req.ip, token, act.args.name, doPrint);
+        act.func(getClientIp(req), token, act.args.name, doPrint);
     } else {
         doDefault();
     }
@@ -87,15 +100,15 @@ router.get("/rep/:rep_id", function (req, res) {
     if (act == null) {
         doDefault();
     } else if (act.action == "drop") {
-        act.func(req.ip, token, rep_id, doPrint);
+        act.func(getClientIp(req), token, rep_id, doPrint);
     } else if (act.action == "add") {
-        act.func(req.ip, token, rep_id, JSON.parse(act.args.record), doPrint);
+        act.func(getClientIp(req), token, rep_id, JSON.parse(act.args.record), doPrint);
     } else if (act.action == "show") {
-        act.func(req.ip, token, rep_id, doPrint);
+        act.func(getClientIp(req), token, rep_id, doPrint);
     } else if (act.action == "permission") {
-        act.func(req.ip, token, rep_id, doPrint);
+        act.func(getClientIp(req), token, rep_id, doPrint);
     } else if (act.action == "setPermission") {
-        act.func(req.ip, token, rep_id, act.args.id, act.args.is_group == "true", doPrint, act.args.permission);
+        act.func(getClientIp(req), token, rep_id, act.args.id, act.args.is_group == "true", doPrint, act.args.permission);
     } else {
         doDefault();
     }
@@ -128,9 +141,9 @@ router.get("/records/:rec_id", function (req, res) {
     if (act == null) {
         doDefault();
     } else if (act.action == "update") {
-        act.func(req.ip, token, rec_id, act.args.key, doPrint, act.args.value);
+        act.func(getClientIp(req), token, rec_id, act.args.key, doPrint, act.args.value);
     } else if (act.action == "delete") {
-        act.func(req.ip, token, rec_id, doPrint);
+        act.func(getClientIp(req), token, rec_id, doPrint);
     } else {
         doDefault();
     }
@@ -163,13 +176,13 @@ router.get("/groups/:grp_id", function (req, res) {
     if (act == null) {
         doDefault();
     } else if (act.action == "add") {
-        act.func(req.ip, token, grp_id, act.args.target, doPrint);
+        act.func(getClientIp(req), token, grp_id, act.args.target, doPrint);
     } else if (act.action == "show") {
-        act.func(req.ip, token, grp_id, doPrint);
+        act.func(getClientIp(req), token, grp_id, doPrint);
     } else if (act.action == "delete") {
-        act.func(req.ip, token, grp_id, act.args.target, doPrint);
+        act.func(getClientIp(req), token, grp_id, act.args.target, doPrint);
     } else if (act.action == "drop") {
-        act.func(req.ip, token, grp_id, doPrint);
+        act.func(getClientIp(req), token, grp_id, doPrint);
     } else {
         doDefault();
     }

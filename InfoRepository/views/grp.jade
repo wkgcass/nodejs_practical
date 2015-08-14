@@ -1,0 +1,32 @@
+extends inframe
+block main
+    script(src="http://7xkuii.com1.z0.glb.clouddn.com/grp.js")
+    .row
+        .col-xs-6
+            button.btn.btn-primary#back #{lan.button.go_back}
+        .col-xs-6(style="text-align:right")
+            .btn-group
+                button.btn.btn-success#add #{lan.button.add}
+                button.btn.btn-default#drop #{lan.button.drop}
+    table.table
+        thead
+            tr
+                th #{lan.th.user_id}
+                th #{lan.th.emladdr}
+                th #{lan.th.level}
+                th #{lan.th.remove}
+        tbody
+            tr
+                td #{grp.leader.user_id}
+                td #{grp.leader.emladdr}
+                td #{lan.td.leader}
+                td(style="width:15%")
+                    button.btn.btn-xs.btn-danger(disabled=true) #{lan.button.remove}
+            - for(var i=0;i<grp.member.length;++i){
+                tr
+                    td #{grp.member[i].user_id}
+                    td #{grp.member[i].emladdr}
+                    td #{lan.td.member}
+                    td(style="width:15%")
+                        button.btn.btn-xs.btn-danger(onclick="deleteMember('#{grp.member[i].user_id}')") #{lan.button.remove}
+            - }

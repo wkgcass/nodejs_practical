@@ -3,65 +3,65 @@ block main
     br
     .row
         .col-xs-10
-            h4 Repositories
+            h4 #{lan.title.rep}
         .col-xs-2(style="text-align:right")
-            button.btn.btn-md.btn-success#repCreate Create
+            button.btn.btn-md.btn-success#repCreate #{lan.button.create}
     - if(rep.R.length!=0){
         - for(var i=0;i<rep.R.length;++i){
-            .panel.panel-info
+            .panel.panel-info(onclick="jumpRep('#{rep.R[i].id}')")
                 .panel-heading
                     .row
                         .col-xs-10 #{rep.R[i].name}
                         .col-xs-1 R
                         .col-xs-1
-                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.R[i].id}')")
+                            span.glyphicon.glyphicon-chevron-down
         - }
     - }
     - if(rep.W.length!=0){
         - for(i=0;i<rep.W.length;++i){
-            .panel.panel-warning
+            .panel.panel-warning(onclick="jumpRep('#{rep.W[i].id}')")
                 .panel-heading
                     .row
                         .col-xs-10 #{rep.W[i].name}
                         .col-xs-1 W
                         .col-xs-1
-                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.W[i].id}')")
+                            span.glyphicon.glyphicon-chevron-down
         - }
     - }
     - if(rep.E.length!=0){
         - for(i=0;i<rep.E.length;++i){
-            .panel.panel-danger
+            .panel.panel-danger(onclick="jumpRep('#{rep.E[i].id}')")
                 .panel-heading
                     .row
                         .col-xs-10 #{rep.E[i].name}
                         .col-xs-1 E
                         .col-xs-1
-                            span.glyphicon.glyphicon-chevron-down(onclick="jumpRep('#{rep.E[i].id}')")
+                            span.glyphicon.glyphicon-chevron-down
         - }
     - }
 
     .row
         .col-xs-10
-            h4 Groups
+            h4 #{lan.title.grp}
         .col-xs-2(style="text-align:right")
             - if(grp.leader==null){
-                button.btn.btn-md.btn-warning#grpCreate Create
+                button.btn.btn-md.btn-warning#grpCreate #{lan.button.create}
             - }
-    - if(grp.leader!=null){
-        .panel.panel-primary
+    - if(grp.L!=null){
+        .panel.panel-primary(onclick="jumpGrp('#{grp.L.id}')")
             .panel-heading
                 .row
                     .col-xs-9 #{grp.L.name}
-                    .col-xs-2 is leader
+                    .col-xs-2 #{lan.td.leader}
                     .col-xs-1
                         span.glyphicon.glyphicon-chevron-down
     - }
     - for(i=0;i<grp.M.length;++i){
-        .panel.panel-success
+        .panel.panel-success(onclick="jumpGrp('#{grp.M[i].id}')")
             .panel-heading
                 .row
                     .col-xs-9 #{grp.M[i].name}
-                    .col-xs-2 joined
+                    .col-xs-2 #{lan.td.member}
                     .col-xs-1
                         span.glyphicon.glyphicon-chevron-down
     - }

@@ -1,41 +1,27 @@
 extends layout
 block content
-    script(src="javascripts/welcome.js")
+    script(src="http://7xkuii.com1.z0.glb.clouddn.com/welcome.js")
     .jumbotron(style="background-color:#495A80")
         .container
-            h1(style="color:#EEEEFF") Information Repository
+            h1(style="color:#EEEEFF") #{lan.title.info_rep}
             br
             br
-            p(style="text-align:right;color:#EEEEFF") a Free, Easy and Safe way of storing your information, and retrieve Everywhere.
+            p(style="text-align:right;color:#EEEEFF") #{lan.sub_title.info_rep}
     .container
         #user(style="text-align:right")
             .btn-group
-                button.btn.btn-lg.btn-primary(onclick="window.open('http://localhost:3000/passport/');sweetAlert('Refresh to update login state.')") Login
-                button.btn.btn-lg.btn-default(onclick="window.open('http://localhost:3000/passport/?register');sweetAlert('Refresh to update login state.')") Register
+                button.btn.btn-lg.btn-primary(onclick="window.open('http://passport.cassite.net/');sweetAlert('Refresh to update login state.')") #{lan.button.login}
+                button.btn.btn-lg.btn-default(onclick="window.open('http://passport.cassite.net/?register');sweetAlert('Refresh to update login state.')") #{lan.button.register}
         #hiddenUser(style="text-align:right;display:none")
-            button.btn.btn-lg.btn-success#toCenter Go To User Center
-        h2 Features
+            button.btn.btn-lg.btn-success#toCenter #{lan.button.go_user}
+        h2 #{lan.sub_title.features}
         .row(style="margin-left:3%;width=97%")
             .col-xs-4
-                h3 Access Control
-                p Each repository has its own permission config. You can modify configs, so that only allowed users or groups can have access to your repository.
-                p There are three levels of permission:
-                ul
-                    li
-                        b read-only
-                        div can only read the records.
-                    li
-                        b writable
-                        div retrieve, create, remove and modify records
-                    li
-                        b editable
-                        div retrieve, create, remove and modify records, drop or change the permission settings.
+                h3 #{lan.sub_title.access}
+                !=lan.text.access
             .col-xs-4
-                h3 Group Managing
-                p If you have founded a team or a company, you can create a <b>Group</b>.
-                p Repositories can define an access setting for a group, so that all members in the group can have the same permission in the repository.
+                h3 #{lan.sub_title.group}
+                !=lan.text.group
             .col-xs-4
-                h3 Encrypt before Sending
-                p You don't have to worry that the system might give out your personal information.
-                p All information would be encrypted on your device, and send encrypted text to server. The server would never see original info or password unless you want to.
-                p Also, this system is an open-source project, you can check documents or source codes and report hidden bugs.
+                h3 #{lan.sub_title.encrypt}
+                !=lan.text.encrypt

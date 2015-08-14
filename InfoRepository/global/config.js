@@ -11,10 +11,10 @@ module.exports = {
     "system": {
         "interfaces": {
             "user": {
-                "url": "http://localhost:3000/passport_api/{$token}/?check&ip={$ip}&refresh=true"
+                "url": "http://api.passport.cassite.net/{$token}/?check&ip={$ip}&refresh=true"
             },
             "emladdr": {
-                "url": "http://localhost:3000/passport_api/?getEmladdrById&user_ids={$user_id}"
+                "url": "http://api.passport.cassite.net/?getEmladdrById&user_ids={$user_id}"
             }
         }
     }

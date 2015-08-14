@@ -4,6 +4,7 @@ var check = require("./check");
 var checkEmladdr = require("./checkEmladdr");
 
 var grpColl = db.get(config.mongo.coll.group);
+var repColl = db.get(config.mongo.coll.repository);
 
 var actions = [
     {
@@ -52,6 +53,10 @@ var actions = [
                                 callback(301, "user cannot write the group");
                             } else {
                                 var grp = docs[0];
+                                if (grp.leader == target) {
+                                    callback(-501, "already in group");
+                                    return;
+                                }
                                 for (var i = 0; i < grp.member.length; ++i) {
                                     if (grp.member[i] == target) {
                                         callback(-501, "already in group");
@@ -214,7 +219,13 @@ var actions = [
                 "type": "int",
                 "description": "successfully deleted member"
             },
-            "error": []
+            "error": [
+                {
+                    "value": -701,
+                    "type": "int",
+                    "description": "the group have not-dropped repository"
+                }
+            ]
         },
         "act": function (ip, token, group, callback) {
             check(ip, token, function (err, res) {
@@ -232,10 +243,32 @@ var actions = [
                             if (docs == null || docs.length == 0) {
                                 callback(301, "user cannot write the group");
                             } else {
-                                grpColl.remove({
-                                    "_id": docs[0]._id
+                                repColl.find({
+                                    "$or": [
+                                        {
+                                            "groups.read": docs[0]._id
+                                        },
+                                        {
+                                            "groups.write": docs[0]._id
+                                        },
+                                        {
+                                            "groups.edit": docs[0]._id
+                                        }
+                                    ]
+                                }, function (err, found) {
+                                    if (err) {
+                                        callback(err, null);
+                                    } else {
+                                        if (found != null || found.length != 0) {
+                                            callback(-701, "the group have not-dropped repository");
+                                        } else {
+                                            grpColl.remove({
+                                                "_id": docs[0]._id
+                                            });
+                                            callback(false, 0);
+                                        }
+                                    }
                                 });
-                                callback(false, 0);
                             }
                         }
                     });
@@ -248,7 +281,7 @@ var actions = [
 function Groups() {
     this.actions = actions;
     this.description = "group management";
-    this.url = "/group/:group_id";
+    this.url = "/groups/:group_id";
 }
 var groups = new Groups();
 module.exports = groups;

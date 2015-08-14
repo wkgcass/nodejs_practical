@@ -2,8 +2,15 @@ extends layout
 block content
     .jumbotron
         .row
-            .container
+            - if(!is_phone){
+                .container
+                    .col-xs-6
+                        include loginsup/login.left.jade
+                    .col-xs-6
+                        include loginsup/login.min.jade
+            - }else{
                 .col-xs-6
                     include loginsup/login.left.jade
                 .col-xs-6
                     include loginsup/login.min.jade
+            - }

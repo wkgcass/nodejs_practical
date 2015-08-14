@@ -157,7 +157,7 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": "{L:{$is_leader}, M:[$is_member]",
+                "value": "{L:{$is_leader{id,name}}, M:[$is_member]",
                 "type": "object",
                 "description": "retrieve joined groups"
             },
@@ -221,7 +221,7 @@ var actions = [
             },
             {
                 "name": "encrypt",
-                "type": "enum(plain, aes, rsa)",
+                "type": "enum(plain, rsa)",
                 "description": "encryption algorithm"
             },
             {

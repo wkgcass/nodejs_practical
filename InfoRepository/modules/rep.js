@@ -101,7 +101,7 @@ var actions = [
             "success": {
                 "value": 0,
                 "type": "int",
-                "description": "the repository has been dropped"
+                "description": "record successfully added"
             },
             "error": [
                 {
@@ -175,7 +175,7 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": "{name:'',structure:[...],records:[{...},...]}",
+                "value": "{rep_id:'',encrypt:'',name:'',structure:[...],records:[{...},...]}",
                 "type": "int",
                 "description": "the repository has been dropped"
             },
@@ -210,7 +210,9 @@ var actions = [
 
                                     doPush(docs, 0, [], function (res) {
                                         callback(false, {
+                                            "rep_id": rep_obj._id.toString(),
                                             "name": rep_obj.name,
+                                            "encrypt": rep_obj.encrypt,
                                             "structure": rep_obj.structure,
                                             "records": res
                                         });
@@ -229,7 +231,7 @@ var actions = [
         "args": [],
         "return": {
             "success": {
-                "value": "{U:{R:[$read_only{user_id:...,emladdr:...}],W:[$writable],E:[$editable]}, G:{R,W,E}}",
+                "value": "{U:{R:[$read_only{user_id:...,emladdr:...}],W:[$writable],E:[$editable]}, G:{R:[{group_id,name}],W,E}}",
                 "type": "object",
                 "description": "permission information"
             },

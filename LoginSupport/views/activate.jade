@@ -3,7 +3,27 @@ block content
     script(src="http://7xkuii.com1.z0.glb.clouddn.com/activate.js")
     br
     br
-    div.container
+    - if(!is_phone){
+        div.container
+            div(style="width:50%;margin-left:auto;margin-right:auto")
+                br
+                .panel.panel-default(style='background-color:#E1E1E1')
+                    .panel-body
+                        div(style='text-align:center')
+                            h2 #{lan.title.activate}
+                        br
+                        input#emladdr.form-control(type="email" placeholder="#{lan.input.emladdr}" required=true value="#{fill_emladdr}")
+                        input#code.form-control(type="text" placeholder="#{lan.input.activationcode}" required=true)
+                        p &nbsp;&nbsp;#{lan.hints.activation_code}
+                        br
+                        button#actbtn.btn.btn-md.btn-warning.btn-block #{lan.button.activate}
+                        br
+                        p
+                            a(style='float:left' href='#' onclick="window.location.href = '?fill_emladdr=' + encodeURI($('#emladdr').val());") #{lan.a.login}
+                            a(style='float:right' href="#" onclick="resend()") #{lan.a.resend}
+
+                        br
+    - }else{
         div(style="width:50%;margin-left:auto;margin-right:auto")
             br
             .panel.panel-default(style='background-color:#E1E1E1')
@@ -22,3 +42,4 @@ block content
                         a(style='float:right' href="#" onclick="resend()") #{lan.a.resend}
 
                     br
+    - }

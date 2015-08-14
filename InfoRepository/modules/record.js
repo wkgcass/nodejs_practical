@@ -59,7 +59,7 @@ var actions = [
                                     var rep = res.rep;
                                     if (rep.structure != null) {
                                         var found = false;
-                                        for (var i = 0; i < rep.structure; ++i) {
+                                        for (var i = 0; i < rep.structure.length; ++i) {
                                             if (rep.structure[i] == key) {
                                                 found = true;
                                             }

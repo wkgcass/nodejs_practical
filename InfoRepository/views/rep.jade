@@ -1,3 +1,147 @@
 extends inframe
 block main
-    button.btn.btn-default Go Back
+    !="<script type='text/javascript'>window.enc='"+records.encrypt+"';</script>"
+    script(src="http://7xkuii.com1.z0.glb.clouddn.com/rep.js")
+    .panel.panel-primary
+        .panel-heading
+            .row
+                .col-xs-2
+                    button.btn.btn-info#back #{lan.button.go_back}
+                .col-xs-8
+                    font(style="font-size:25px") #{records.name}
+                .col-xs-2(style="text-align:right")
+                    button.btn.btn-warning#drop #{lan.button.drop}
+    // records
+    .panel.panel-info
+        .panel-heading
+            .row
+                .col-xs-6 #{lan.title.rec}
+                .col-xs-6(style="text-align:right")
+                    - if(records.structure==null){
+                        button.btn.btn-xs.btn-success(onclick="addNull()") #{lan.button.add}
+                    - }else{
+                        - var addStr=JSON.stringify(records.structure)
+                        button.btn.btn-xs.btn-success(onclick="add('#{addStr}')") #{lan.button.add}
+                    - }
+    - if(records.encrypt!="plain"){
+        script(src="http://7xkuii.com1.z0.glb.clouddn.com/cryptico.js")
+        script(src="http://7xkuii.com1.z0.glb.clouddn.com/jsbn.js")
+        script(src="http://7xkuii.com1.z0.glb.clouddn.com/rsa.js")
+        .row
+            .col-xs-6
+                input.form-control#key(type="password" placeholder="#{lan.input.key}")
+            .col-xs-6(style="text-align:right")
+                button.btn.btn-primary(onclick="decodeAll()") #{lan.button.decode}
+        br
+    - }
+    - if(records.structure==null){
+        // null structure
+        - for(var i=0;i<records.records.length;++i){
+            .panel.panel-info
+                .panel-heading
+                    .row
+                        .col-xs-6 ID: #{records.records[i]._id}
+                        .col-xs-6(style="text-align:right")
+                            button.btn.btn-xs.btn-danger(onclick="del('#{records.records[i]._id}')") #{lan.button.remove}
+                .panel-body
+                    table.table(style="margin-bottom:0")
+                        tbody
+                            - for(var k in records.records[i]){
+                                - if(k=="_id") continue;
+                                tr
+                                    td #{k}
+                                    td.e(onclick="modify('#{records.records[i]._id}','#{k}')") #{records.records[i][k]}
+                            - }
+        - }
+    - }else{
+        // not null structure
+        table.table
+            thead
+                tr
+                    - for(var i=0;i<records.structure.length;++i){
+                        th #{records.structure[i]}
+                    - }
+                    th &nbsp;
+            tbody#tb
+                - for(var i=0;i<records.records.length;++i){
+                    tr
+                        - for(var j=0;j<records.structure.length;++j){
+                            td.e(onclick="modify('#{records.records[i]._id}','#{records.structure[j]}')") #{records.records[i][records.structure[j]]}
+                        - }
+                        td(style="width:15%")
+                            button.btn.btn-xs.btn-danger(onclick="del('#{records.records[i]._id}')") #{lan.button.remove}
+                - }
+    - }
+    hr
+    // permission
+    .panel.panel-info
+        .panel-heading
+            .row
+                .col-xs-6 #{lan.title.access}
+                .col-xs-6(style="text-align:right")
+                    button.btn.btn-xs.btn-success#set #{lan.button.set}
+
+    table.table
+        thead
+            tr
+                th #{lan.th.user_id}
+                th #{lan.th.emladdr}
+                th #{lan.th.access}
+                th #{lan.th.remove}
+        tbody
+            - for(var i=0;i<permissions.U.R.length;++i){
+                tr
+                    td #{permissions.U.R[i].user_id}
+                    td #{permissions.U.R[i].emladdr}
+                    td #{lan.td.read_only}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.U.R[i].user_id}',false)") #{lan.button.remove}
+            - }
+            - for(var i=0;i<permissions.U.W.length;++i){
+                tr
+                    td #{permissions.U.W[i].user_id}
+                    td #{permissions.U.W[i].emladdr}
+                    td #{lan.td.writable}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.U.W[i].user_id}',false)") #{lan.button.remove}
+            - }
+            - for(var i=0;i<permissions.U.E.length;++i){
+                tr
+                    td #{permissions.U.E[i].user_id}
+                    td #{permissions.U.E[i].emladdr}
+                    td #{lan.td.editable}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.U.E[i].user_id}',false)") #{lan.button.remove}
+            - }
+    table.table
+        thead
+            tr
+                th #{lan.th.grp}
+                th #{lan.th.name}
+                th #{lan.th.access}
+                th #{lan.th.remove}
+        tbody
+            - for(var i=0;i<permissions.G.R.length;++i){
+                tr
+                    td #{permissions.G.R[i].group_id}
+                    td #{permissions.G.R[i].name}
+                    td #{lan.td.read_only}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.G.R[i].group_id}',true)") #{lan.button.remove}
+            - }
+            - for(var i=0;i<permissions.G.W.length;++i){
+                tr
+                    td #{permissions.G.W[i].group_id}
+                    td #{permissions.G.W[i].name}
+                    td #{lan.td.writable}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.G.W[i].group_id}',true)") #{lan.button.remove}
+            - }
+            - for(var i=0;i<permissions.G.E.length;++i){
+                tr
+                    td #{permissions.G.E[i].group_id}
+                    td #{permissions.G.E[i].name]}
+                    td #{lan.td.editable}
+                    td
+                        button.btn.btn-xs.btn-danger(onclick="removePermission('#{permissions.G.E[i].group_id}',true)") #{lan.button.remove}
+            - }
