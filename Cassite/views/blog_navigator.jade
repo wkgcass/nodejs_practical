@@ -1,0 +1,22 @@
+nav.navbar.navbar-inverse
+    .container-fluid
+        .navbar-header
+            a.navbar-brand(href="http://cassite.net") Cassite.net
+        .collapse.navbar-collapse
+            ul.nav.navbar-nav
+                - if(current==null){
+                    li.active
+                        a(href="http://blog.cassite.net/") 最近文章
+                - }else{
+                    li
+                        a(href="http://blog.cassite.net/") 最近文章
+                - }
+                - for(var i=0;i<cats.length;++i){
+                    - if(cats[i]==current){
+                        li.active
+                            a(href="http://blog.cassite.net/#{encodeURI(cats[i])}") #{cats[i]}
+                    - }else{
+                        li
+                            a(href="http://blog.cassite.net/#{encodeURI(cats[i])}") #{cats[i]}
+                    - }
+                - }

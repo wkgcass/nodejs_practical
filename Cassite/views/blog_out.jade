@@ -1,0 +1,11 @@
+extends layout
+block content
+    .container
+        - for(var i=0;i<preview.length;++i){
+            li.list-group-item
+                div
+                    h3 #{preview[i].title}
+                    p #{preview[i].preview}......
+                        a(href="#" onclick="parent.location.href='http://blog.cassite.net/#{encodeURI(preview[i].cat+'/'+preview[i].title)}'") 查看>>
+                    p(style="text-align:right") #{new Date(preview[i].mtime)}
+        - }

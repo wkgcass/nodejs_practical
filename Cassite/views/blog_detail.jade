@@ -1,0 +1,11 @@
+extends layout
+block content
+    .container
+        include blog_navigator
+        h2 #{detail.title}
+        div(style="text-align:right")
+            p 最后修改时间:#{new Date(detail.mtime)}
+            p 创建时间:#{new Date(detail.mtime)}
+        .panel.panel-default
+            .panel-body
+                !=detail.content
