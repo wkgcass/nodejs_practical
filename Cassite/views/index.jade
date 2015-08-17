@@ -1,5 +1,89 @@
 extends layout
-
 block content
-  h1= title
-  p Welcome to #{title}
+    script(src="http://7xkuii.com1.z0.glb.clouddn.com/jquery.scrollTo.js")
+    .jumbotron(style="height:1050px;background-color:#404040;color:#FFFFFF;text-align:center")
+        h1
+            font(style="font-size:240px;cursor:pointer;" onclick="$.scrollTo('#head',500);") Hello World
+        p#head
+            font(style="font-size:120px") Cassite.net
+        p Designed, Written, and Maintained by WkgCass since 2015.
+        br
+        br
+        br
+        br
+        br
+        p This is a site about <b>Programming</b>
+        br
+        br
+        br
+        br
+        .row
+            .col-xs-4
+                .panel.panel-primary(style="background-color:#404040;color:#3988CC;cursor:pointer;" onclick="$.scrollTo('#open',500);")
+                    .panel-body
+                        h1 Open Source
+            .col-xs-4
+                .panel.panel-success(style="background-color:#404040;color:#D2ECC6;cursor:pointer;" onclick="$.scrollTo('#prj',1000);")
+                    .panel-body
+                        h1 Projects
+            .col-xs-4
+                .panel.panel-default(style="background-color:#404040;cursor:pointer;" onclick="$.scrollTo('#blog',1500);")
+                    .panel-body
+                        h1 Blogs
+    .container
+        .row
+            .col-xs-6
+                h2(id="open") Open Source
+            .col-xs-6(style="text-align:right")
+                br
+                a(href="#" onclick="window.open('https://github.com/wkgcass?tab=repositories')") 更多>>
+        .row
+            .col-xs-3
+                .panel.panel-primary(style="cursor:pointer;" onclick="window.open('https://github.com/wkgcass/Style')")
+                    .panel-body
+                        h3 Style
+                        p 全新的Java编程风格
+            .col-xs-3
+                .panel.panel-info
+                    .panel-body
+                        h3 Pure.IOC&nbsp;&nbsp;
+                            font(style="font-size:15px") (即将推出)
+                        p 轻量级基于类的依赖注入框架
+            .col-xs-3
+            .col-xs-3
+        .row
+            .col-xs-6
+                h2(id="prj") Projects
+            .col-xs-6(style="text-align:right")
+                br
+                a(href="#" onclick="window.open('https://github.com/wkgcass/projects')") 更多>>
+        .row
+            .col-xs-3
+                .panel.panel-primary(style="cursor:pointer;" onclick="window.open('http://passport.cassite.net/')")
+                    .panel-body(style="height:142px")
+                        h3 通用登录模块
+                        p Nodejs+Express+Jade+Monk
+            .col-xs-3
+                .panel.panel-info(style="cursor:pointer;" onclick="window.open('http://info.cassite.net/')")
+                    .panel-body(style="height:142px")
+                        h3 信息加密存储模块
+                        font(style="font-size:15px") (欢迎测试)
+                        p Nodejs+Express+Jade+Monk
+            .col-xs-3
+                .panel.panel-primary(style="cursor:pointer;" onclick="window.open('https://github.com/wkgcass/projects/tree/master/UDP_CourseDesign')")
+                    .panel-body(style="height:142px")
+                        h3 UDP即时通信（课程设计）
+                        p Java UDP网络编程
+            .col-xs-3
+                .panel.panel-primary(style="cursor:pointer;" onclick="window.open('https://github.com/wkgcass/projects/tree/master/microInst')")
+                    .panel-body(style="height:142px")
+                        h3 微指令生成工具
+                        p C# WinForm DataGridView (源码丢失)
+        .row
+            .col-xs-6
+                h2(id="blog") Blogs
+            .col-xs-6(style="text-align:right")
+                br
+                a(href="#" onclick="window.open('http://blog.cassite.net/')") 更多>>
+        .embed-responsive.embed-responsive-16by9
+            iframe.embed-responsive-item(src="http://blog.cassite.net/out/")
